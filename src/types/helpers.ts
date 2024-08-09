@@ -32,3 +32,5 @@ export type TupleToString<T extends (number | string)[]> = T extends [
 export type Prettify<T> = {
   [K in keyof T]: T[K];
 } & {};
+
+export type ForbiddenCharsInNames = ' ' | '.';

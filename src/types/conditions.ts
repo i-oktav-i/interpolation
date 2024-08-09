@@ -1,4 +1,4 @@
-import { Trim } from './helpers';
+import { ForbiddenCharsInNames, Trim } from './helpers';
 
 export type InterpolatedConditionsNames<
   T extends string,
@@ -13,7 +13,7 @@ export type InterpolatedConditionsNames<
       ''
     ]
     ? Trim<RawName> extends infer Name
-      ? Name extends `${string} ${string}` | ''
+      ? Name extends `${string}${ForbiddenCharsInNames}${string}` | ''
         ? InterpolatedConditionsNames<
             `${RawName}${Quot}${IfTrue}${Quot}${BeforeDelim}${Delim}${BeforeFalse}${Quot}${IfFalse}${Quot}${BeforePostfix}${Postfix}${Rest}`,
             Prefix,

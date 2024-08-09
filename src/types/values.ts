@@ -1,4 +1,4 @@
-import { Trim } from './helpers';
+import { ForbiddenCharsInNames, Trim } from './helpers';
 
 export type InterpolatedValuesNames<
   T extends string,
@@ -6,7 +6,7 @@ export type InterpolatedValuesNames<
   Postfix extends string
 > = T extends `${string}${Prefix}${infer RawName}${Postfix}${infer Rest}`
   ? Trim<RawName> extends infer Name
-    ? Name extends `${string} ${string}` | ''
+    ? Name extends `${string}${ForbiddenCharsInNames}${string}` | ''
       ? InterpolatedValuesNames<`${RawName}${Postfix}${Rest}`, Prefix, Postfix>
       : Name | InterpolatedValuesNames<Rest, Prefix, Postfix>
     : never
