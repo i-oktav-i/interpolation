@@ -1,4 +1,5 @@
 import { Prettify, UnionToIntersection } from './helpers';
+import { InterpolateInsertion } from './insertion';
 
 type AnyResourceOrString = AnyResource | string;
 type AnyObjectResource = { [key: string]: AnyResourceOrString };
@@ -33,6 +34,19 @@ export type ReduceKeys<Resource extends AnyResource> = Prettify<
     ? Reduced
     : never
 >;
+
+export type InterpolateInsertionsToReducesResource<
+  ReducedResource extends Record<string, string>,
+  Prefix extends string,
+  Postfix extends string
+> = {
+  [Key in keyof ReducedResource]: InterpolateInsertion<
+    ReducedResource[Key],
+    Prefix,
+    Postfix,
+    ReducedResource
+  >;
+};
 
 /**
  * Проверяет элементы массива на допустимые значения локали.

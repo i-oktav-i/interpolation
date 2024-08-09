@@ -1,5 +1,6 @@
 import {
   AnyResource,
+  InterpolateInsertionsToReducesResource,
   InterpolationMethodEnhanced,
   ReducedResourceToConditionNames,
   ReducedResourceToTagsNames,
@@ -17,9 +18,11 @@ type InterpoLationClientDefaultParams = {
   valuesPrefix: '{{';
   valuesPostfix: '}}';
   conditionsPrefix: '{{?';
-  conditionsPostfix: '{{';
+  conditionsPostfix: '}}';
   conditionsDelim: '::';
   conditionsQuot: '"';
+  insertionPrefix: '{{$';
+  insertionPostfix: '}}';
 };
 
 interface InterpoLationClientParams {}
@@ -46,36 +49,51 @@ export class InterpolationClient<
   const ConditionsPostfix extends string = GetParamsValue<'conditionsPostfix'>,
   const ConditionsDelim extends string = GetParamsValue<'conditionsDelim'>,
   const ConditionsQuot extends string = GetParamsValue<'conditionsQuot'>,
+  const InsertionPrefix extends string = GetParamsValue<'insertionPrefix'>,
+  const InsertionPostfix extends string = GetParamsValue<'insertionPostfix'>,
   AllowAnyStrings extends boolean = false,
-  ReducedResource extends ReduceKeys<Resource> = ReduceKeys<Resource>,
-  ValueNames extends ReducedResourceToValueNames<
+  ReducedResource extends Record<string, string> = ReduceKeys<Resource>,
+  ReducedResourceWithInsertions extends Record<
+    string,
+    string
+  > = InterpolateInsertionsToReducesResource<
     ReducedResource,
+    InsertionPrefix,
+    InsertionPostfix
+  >,
+  ValueNames extends Record<
+    keyof ReducedResourceWithInsertions,
+    string
+  > = ReducedResourceToValueNames<
+    ReducedResourceWithInsertions,
     ValuesPrefix,
     ValuesPostfix
-  > = ReducedResourceToValueNames<ReducedResource, ValuesPrefix, ValuesPostfix>,
-  ConditionNames extends ReducedResourceToConditionNames<
-    ReducedResource,
-    ConditionsPrefix,
-    ConditionsPostfix,
-    ConditionsDelim,
-    ConditionsQuot
+  >,
+  ConditionNames extends Record<
+    keyof ReducedResourceWithInsertions,
+    string
   > = ReducedResourceToConditionNames<
-    ReducedResource,
+    ReducedResourceWithInsertions,
     ConditionsPrefix,
     ConditionsPostfix,
     ConditionsDelim,
     ConditionsQuot
   >,
-  TagNames extends ReducedResourceToTagsNames<ReducedResource> = ReducedResourceToTagsNames<ReducedResource>
+  TagNames extends Record<
+    keyof ReducedResourceWithInsertions,
+    string
+  > = ReducedResourceToTagsNames<ReducedResourceWithInsertions>
 > {
   constructor({
     resource,
-    valuesPrefix = '{{' as any,
-    valuesPostfix = '}}' as any,
-    conditionsPrefix = '{{?' as any,
-    conditionsPostfix = valuesPostfix as any,
-    conditionsDelim = '::' as any,
-    conditionsQuot = '"' as any,
+    valuesPrefix = '{{',
+    valuesPostfix = '}}',
+    conditionsPrefix = '{{?',
+    conditionsPostfix = '}}',
+    conditionsDelim = '::',
+    conditionsQuot = '"',
+    insertionPrefix = '{{$',
+    insertionPostfix = '}}',
   }: {
     resource: ValidateResource<Resource, AllowAnyStrings>;
     allowAnyString?: AllowAnyStrings;
@@ -84,10 +102,12 @@ export class InterpolationClient<
     CheckDefault<'conditionsPrefix', ConditionsPrefix> &
     CheckDefault<'conditionsPostfix', ConditionsPostfix> &
     CheckDefault<'conditionsDelim', ConditionsDelim> &
-    CheckDefault<'conditionsQuot', ConditionsQuot>) {}
+    CheckDefault<'conditionsQuot', ConditionsQuot> &
+    CheckDefault<'insertionPrefix', InsertionPrefix> &
+    CheckDefault<'insertionPostfix', InsertionPostfix>) {}
   // @ts-ignore
   interpolate: InterpolationMethodEnhanced<
-    ReducedResource,
+    ReducedResourceWithInsertions,
     ValueNames,
     ConditionNames,
     TagNames,
