@@ -30,19 +30,17 @@ export type InterpolateValues<
   Postfix extends string,
   Values extends Record<string, string | number>
 > = T extends `${infer Start}${Prefix}${infer RawName}${Postfix}${infer Rest}`
-  ? Trim<RawName> extends infer Name
-    ? Name extends keyof Values
-      ? `${Start}${Values[Name]}${InterpolateValues<
-          Rest,
-          Prefix,
-          Postfix,
-          Values
-        >}`
-      : `${Start}{{${InterpolateValues<
-          `${RawName}}}${Rest}`,
-          Prefix,
-          Postfix,
-          Values
-        >}`
-    : never
+  ? Trim<RawName> extends infer Name extends keyof Values
+    ? `${Start}${Values[Name]}${InterpolateValues<
+        Rest,
+        Prefix,
+        Postfix,
+        Values
+      >}`
+    : `${Start}{{${InterpolateValues<
+        `${RawName}}}${Rest}`,
+        Prefix,
+        Postfix,
+        Values
+      >}`
   : T;
