@@ -22,12 +22,15 @@ export type EmptyObjectIfNever<T extends UnknownObject> = [T] extends [never]
   ? {}
   : T;
 
-export type TupleToString<T extends (number | string)[]> = T extends [
+export type TupleToString<
+  T extends (number | string)[],
+  Result extends string = ''
+> = T extends [
   infer First extends number | string,
   ...infer Rest extends (number | string)[]
 ]
-  ? `${First}${TupleToString<Rest>}`
-  : '';
+  ? TupleToString<Rest, `${Result}${First}`>
+  : Result;
 
 export type Prettify<T> = {
   [K in keyof T]: T[K];

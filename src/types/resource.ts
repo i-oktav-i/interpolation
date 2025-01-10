@@ -69,16 +69,18 @@ export type InterpolateInsertionsToReducesResource<
  */
 type ValidateArrayValues<
   ArrayResource extends AnyArrayResource,
-  AllowString extends boolean
+  AllowString extends boolean,
+  ValidatedResult extends AnyResourceOrString[] = []
 > = ArrayResource extends readonly [
   infer First extends AnyResourceOrString,
   ...infer Rest extends AnyArrayResource
 ]
-  ? readonly [
-      _ValidateResource<First, AllowString>,
-      ...ValidateArrayValues<Rest, AllowString>
-    ]
-  : [];
+  ? ValidateArrayValues<
+      Rest,
+      AllowString,
+      [...ValidatedResult, _ValidateResource<First, AllowString>]
+    >
+  : ValidatedResult;
 
 /**
  * Проверяет что массив конечной длинны и все его элементы

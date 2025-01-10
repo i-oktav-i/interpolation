@@ -1,16 +1,22 @@
 import { ForbiddenCharsInNames, Trim } from './helpers';
 
 export type InterpolatedValuesNames<
-  T extends string,
+  ResourceString extends string,
   Prefix extends string,
-  Postfix extends string
-> = T extends `${string}${Prefix}${infer RawName}${Postfix}${infer Rest}`
-  ? Trim<RawName> extends infer Name
+  Postfix extends string,
+  Names extends string = never
+> = ResourceString extends `${string}${Prefix}${infer RawName}${Postfix}${infer Rest}`
+  ? Trim<RawName> extends infer Name extends string
     ? Name extends `${string}${ForbiddenCharsInNames}${string}` | ''
-      ? InterpolatedValuesNames<`${RawName}${Postfix}${Rest}`, Prefix, Postfix>
-      : Name | InterpolatedValuesNames<Rest, Prefix, Postfix>
+      ? InterpolatedValuesNames<
+          `${RawName}${Postfix}${Rest}`,
+          Prefix,
+          Postfix,
+          Names
+        >
+      : InterpolatedValuesNames<Rest, Prefix, Postfix, Names | Name>
     : never
-  : never;
+  : Names;
 
 export type ReducedResourceToValueNames<
   ReducedResource extends Record<string, string>,
@@ -25,22 +31,25 @@ export type ReducedResourceToValueNames<
 };
 
 export type InterpolateValues<
-  T extends string,
+  ResourceString extends string,
   Prefix extends string,
   Postfix extends string,
-  Values extends Record<string, string | number>
-> = T extends `${infer Start}${Prefix}${infer RawName}${Postfix}${infer Rest}`
+  Values extends Record<string, string | number>,
+  ResultStart extends string = ''
+> = ResourceString extends `${infer Start}${Prefix}${infer RawName}${Postfix}${infer Rest}`
   ? Trim<RawName> extends infer Name extends keyof Values
-    ? `${Start}${Values[Name]}${InterpolateValues<
+    ? InterpolateValues<
         Rest,
         Prefix,
         Postfix,
-        Values
-      >}`
-    : `${Start}{{${InterpolateValues<
+        Values,
+        `${Start}${Values[Name]}`
+      >
+    : InterpolateValues<
         `${RawName}}}${Rest}`,
         Prefix,
         Postfix,
-        Values
-      >}`
-  : T;
+        Values,
+        `${Start}{{`
+      >
+  : `${ResultStart}${ResourceString}`;

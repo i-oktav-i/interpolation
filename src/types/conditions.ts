@@ -1,30 +1,39 @@
 import { ForbiddenCharsInNames, Trim } from './helpers';
 
 export type InterpolatedConditionsNames<
-  T extends string,
+  ResourceString extends string,
   Prefix extends string,
   Postfix extends string,
   Delim extends string,
-  Quot extends string = '"'
-> = T extends `${string}${Prefix}${infer RawName}${Quot}${infer IfTrue}${Quot}${infer BeforeDelim}${Delim}${infer BeforeFalse}${Quot}${infer IfFalse}${Quot}${infer BeforePostfix}${Postfix}${infer Rest}`
+  Quot extends string = '"',
+  ConditionsNames extends string = never
+> = ResourceString extends `${string}${Prefix}${infer RawName}${Quot}${infer IfTrue}${Quot}${infer BeforeDelim}${Delim}${infer BeforeFalse}${Quot}${infer IfFalse}${Quot}${infer BeforePostfix}${Postfix}${infer Rest}`
   ? [Trim<BeforeDelim>, Trim<BeforeFalse>, Trim<BeforePostfix>] extends [
       '',
       '',
       ''
     ]
-    ? Trim<RawName> extends infer Name
+    ? Trim<RawName> extends infer Name extends string
       ? Name extends `${string}${ForbiddenCharsInNames}${string}` | ''
         ? InterpolatedConditionsNames<
             `${RawName}${Quot}${IfTrue}${Quot}${BeforeDelim}${Delim}${BeforeFalse}${Quot}${IfFalse}${Quot}${BeforePostfix}${Postfix}${Rest}`,
             Prefix,
             Postfix,
             Delim,
-            Quot
+            Quot,
+            ConditionsNames
           >
-        : Name | InterpolatedConditionsNames<Rest, Prefix, Postfix, Delim, Quot>
+        : InterpolatedConditionsNames<
+            Rest,
+            Prefix,
+            Postfix,
+            Delim,
+            Quot,
+            ConditionsNames | Name
+          >
       : never
     : never
-  : never;
+  : ConditionsNames;
 
 export type ReducedResourceToConditionNames<
   ReducedResource extends Record<string, string>,
@@ -45,43 +54,47 @@ export type ReducedResourceToConditionNames<
 type FalsyTypes = false | 0 | '' | null | undefined;
 
 export type InterpolateConditions<
-  T extends string,
+  ResourceString extends string,
   Prefix extends string,
   Postfix extends string,
   Delim extends string,
   Quot extends string,
-  Conditions extends Record<string, any>
-> = T extends `${infer Start}${Prefix}${infer RawName}${Quot}${infer IfTrue}${Quot}${infer BeforeDelim}${Delim}${infer BeforeFalse}${Quot}${infer IfFalse}${Quot}${infer BeforePostfix}${Postfix}${infer Rest}`
+  Conditions extends Record<string, any>,
+  ResultStart extends string = ''
+> = ResourceString extends `${infer Start}${Prefix}${infer RawName}${Quot}${infer IfTrue}${Quot}${infer BeforeDelim}${Delim}${infer BeforeFalse}${Quot}${infer IfFalse}${Quot}${infer BeforePostfix}${Postfix}${infer Rest}`
   ? Trim<RawName> extends infer Name extends keyof Conditions
     ? [Trim<BeforeDelim>, Trim<BeforeFalse>, Trim<BeforePostfix>] extends [
         '',
         '',
         ''
       ]
-      ? `${Start}${Conditions[Name] extends FalsyTypes
-          ? IfFalse
-          : IfTrue}${InterpolateConditions<
+      ? InterpolateConditions<
           Rest,
           Prefix,
           Postfix,
           Delim,
           Quot,
-          Conditions
-        >}`
-      : `${Start}${Postfix}${InterpolateConditions<
+          Conditions,
+          `${ResultStart}${Start}${Conditions[Name] extends FalsyTypes
+            ? IfFalse
+            : IfTrue}`
+        >
+      : InterpolateConditions<
           `${RawName}${Quot}${IfTrue}${Quot}${BeforeDelim}${Delim}${BeforeFalse}${Quot}${IfFalse}${Quot}${BeforePostfix}${Postfix}${Rest}`,
           Prefix,
           Postfix,
           Delim,
           Quot,
-          Conditions
-        >}`
-    : `${Start}${Prefix}${InterpolateConditions<
+          Conditions,
+          `${ResultStart}${Start}${Postfix}`
+        >
+    : InterpolateConditions<
         `${RawName}${Quot}${IfTrue}${Quot}${BeforeDelim}${Delim}${BeforeFalse}${Quot}${IfFalse}${Quot}${BeforePostfix}${Postfix}${Rest}`,
         Prefix,
         Postfix,
         Delim,
         Quot,
-        Conditions
-      >}`
-  : T;
+        Conditions,
+        `${ResultStart}${Start}${Postfix}`
+      >
+  : `${ResultStart}${ResourceString}`;

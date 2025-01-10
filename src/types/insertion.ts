@@ -1,38 +1,49 @@
 import { Trim } from './helpers';
 
 export type InterpolatedInsertionNames<
-  T extends string,
-  Prefix extends string,
-  Postfix extends string
-> = T extends `${string}${Prefix}${infer RawName}${Postfix}${infer Rest}`
-  ? Trim<RawName> extends infer Name
-    ? Name extends `${string} ${string}` | ''
-      ? InterpolatedInsertionNames<
-          `${RawName}${Postfix}${Rest}`,
-          Prefix,
-          Postfix
-        >
-      : Name | InterpolatedInsertionNames<Rest, Prefix, Postfix>
-    : never
-  : never;
-
-export type InterpolateInsertion<
-  T extends string,
+  ResourceString extends string,
   Prefix extends string,
   Postfix extends string,
-  ReducedResource extends Record<string, string>
-> = T extends `${infer Start}${Prefix}${infer RawName}${Postfix}${infer Rest}`
-  ? Trim<RawName> extends infer Name extends keyof ReducedResource
-    ? `${Start}${InterpolateInsertion<
-        ReducedResource[Name],
+  Paths extends string = never
+> = ResourceString extends `${string}${Prefix}${infer RawPath}${Postfix}${infer Rest}`
+  ? Trim<RawPath> extends infer Path extends string
+    ? Path extends `${string} ${string}` | ''
+      ? InterpolatedInsertionNames<
+          `${RawPath}${Postfix}${Rest}`,
+          Prefix,
+          Postfix,
+          Paths
+        >
+      : InterpolatedInsertionNames<Rest, Prefix, Postfix, Paths | Path>
+    : never
+  : Paths;
+
+export type InterpolateInsertion<
+  ResourceString extends string,
+  Prefix extends string,
+  Postfix extends string,
+  ReducedResource extends Record<string, string>,
+  ResultStart extends string = ''
+> = ResourceString extends `${infer Start}${Prefix}${infer RawResourcePath}${Postfix}${infer Rest}`
+  ? Trim<RawResourcePath> extends infer ResourcePath extends keyof ReducedResource
+    ? InterpolateInsertion<
+        Rest,
         Prefix,
         Postfix,
-        ReducedResource
-      >}${InterpolateInsertion<Rest, Prefix, Postfix, ReducedResource>}`
-    : `${Start}{{${InterpolateInsertion<
-        `${RawName}}}${Rest}`,
+        ReducedResource,
+        InterpolateInsertion<
+          ReducedResource[ResourcePath],
+          Prefix,
+          Postfix,
+          ReducedResource,
+          `${ResultStart}${Start}`
+        >
+      >
+    : InterpolateInsertion<
+        `${RawResourcePath}}}${Rest}`,
         Prefix,
         Postfix,
-        ReducedResource
-      >}`
-  : T;
+        ReducedResource,
+        `${ResultStart}${Start}{{`
+      >
+  : `${ResultStart}${ResourceString}`;
