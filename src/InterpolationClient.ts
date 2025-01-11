@@ -42,7 +42,9 @@ type CheckDefault<
   : { [x in Key]: ProvidedValue };
 
 export class InterpolationClient<
-  Resource extends AnyResource,
+  const Resource extends [Resource] extends [infer U extends AnyResource]
+    ? ValidateResource<U, AllowAnyStrings>
+    : never,
   const ValuesPrefix extends string = GetParamsValue<'valuesPrefix'>,
   const ValuesPostfix extends string = GetParamsValue<'valuesPostfix'>,
   const ConditionsPrefix extends string = GetParamsValue<'conditionsPrefix'>,
@@ -95,7 +97,7 @@ export class InterpolationClient<
     insertionPrefix = '{{$',
     insertionPostfix = '}}',
   }: {
-    resource: ValidateResource<Resource, AllowAnyStrings>;
+    resource: Resource;
     allowAnyString?: AllowAnyStrings;
   } & CheckDefault<'valuesPrefix', ValuesPrefix> &
     CheckDefault<'valuesPostfix', ValuesPostfix> &
