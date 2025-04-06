@@ -43,13 +43,13 @@ export type InterpolateValues<
         Prefix,
         Postfix,
         Values,
-        `${Start}${Values[Name]}`
+        `${ResultStart}${Start}${Values[Name]}`
       >
     : InterpolateValues<
         `${RawName}}}${Rest}`,
         Prefix,
         Postfix,
         Values,
-        `${Start}{{`
+        `${ResultStart}${Start}{{`
       >
   : `${ResultStart}${ResourceString}`;
