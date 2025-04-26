@@ -110,7 +110,7 @@ type ParseResourceString<
       ifTrue: never;
       ifFalse: never;
       start: RawData['start'];
-      rest: `${Name}${Quot}${RawData['ifTrue']}${Quot}${RawData['beforeDelim']}${Delim}${RawData['beforeFalse']}${Quot}${RawData['ifFalse']}${Quot}${RawData['beforePostfix']}${Postfix}${RawData['rest']}`;
+      rest: `${RawData['name']}${Quot}${RawData['ifTrue']}${Quot}${RawData['beforeDelim']}${Delim}${RawData['beforeFalse']}${Quot}${RawData['ifFalse']}${Quot}${RawData['beforePostfix']}${Postfix}${RawData['rest']}`;
     };
 
 export type InterpolatedConditionsNames<
