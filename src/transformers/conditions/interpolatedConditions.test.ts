@@ -3,7 +3,7 @@ import type {
   InterpolateConditions,
   InterpolatedConditionsNames,
   Negation,
-} from './conditions';
+} from './interpolatedConditions';
 
 // #region Setup
 
@@ -177,10 +177,11 @@ type InterpolateConditionsCases<
   Postfix extends string,
   Delim extends string,
   Quot extends string,
+  CommonTemplate extends string = `${Prefix}${FirstCondition['name']}${Quot}${FirstCondition['ifTrue']}${Quot}${Delim}${Quot}${FirstCondition['ifFalse']}${Quot}${Postfix}`,
   WrongTemplate extends string = `${FirstCondition['name']}${Quot}${FirstCondition['ifTrue']}${Quot}${Delim}${Quot}${FirstCondition['ifFalse']}${Quot}${Postfix}`
 > = {
   withoutNegationWithTrueCondition: {
-    template: `${Prefix}${FirstCondition['name']}${Quot}${FirstCondition['ifTrue']}${Quot}${Delim}${Quot}${FirstCondition['ifFalse']}${Quot}${Postfix}`;
+    template: CommonTemplate;
     values: Record<FirstCondition['name'], true>;
     result: FirstCondition['ifTrue'];
   };
@@ -208,6 +209,11 @@ type InterpolateConditionsCases<
     template: `${Prefix}${FirstCondition['name']}${Quot}${FirstCondition['ifTrue']}${Quot}${Delim}${Quot}${FirstCondition['ifFalse']}${Quot}${Postfix}`;
     values: Record<FirstCondition['name'], boolean>;
     result: FirstCondition['ifTrue'] | FirstCondition['ifFalse'];
+  };
+  withoutValues: {
+    template: CommonTemplate;
+    values: {};
+    result: CommonTemplate;
   };
 };
 

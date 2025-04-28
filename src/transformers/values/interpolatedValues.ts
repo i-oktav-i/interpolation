@@ -1,4 +1,6 @@
-import { ForbiddenCharsInNames, Trim } from './helpers';
+import { ForbiddenCharsInNames, Trim } from '../../types';
+
+export type Value = string | number;
 
 export type InterpolatedValuesNames<
   ResourceString extends string,

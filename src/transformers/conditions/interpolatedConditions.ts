@@ -1,4 +1,4 @@
-import { ForbiddenCharsInNames, Trim } from './helpers';
+import { ForbiddenCharsInNames, Trim } from '../../types';
 
 export type Negation = '!';
 export type FalsyType = false | 0 | '' | null | undefined;
@@ -81,9 +81,10 @@ type ParseResourceString<
     Delim,
     Quot
   >,
-  Name extends string = RawData['name'] extends `${Negation}${infer Name}`
+  TrimmedName extends string = Trim<RawData['name']>,
+  Name extends string = TrimmedName extends `${Negation}${infer Name}`
     ? Name
-    : RawData['name'],
+    : TrimmedName,
   TemplateCorrectness = IsTemplateCorrect<
     Name,
     RawData['beforeDelim'],
@@ -91,7 +92,7 @@ type ParseResourceString<
     RawData['beforePostfix'],
     NameLimitation
   >,
-  Negate extends boolean = RawData['name'] extends `${Negation}${string}`
+  Negate extends boolean = TrimmedName extends `${Negation}${string}`
     ? true
     : false,
   ConditionalValues = Negate extends true
@@ -141,22 +142,6 @@ export type InterpolatedConditionsNames<
       Quot,
       ConditionsNames | ParsedData['name']
     >;
-
-export type ReducedResourceToConditionNames<
-  ReducedResource extends Record<string, string>,
-  Prefix extends string,
-  Postfix extends string,
-  Delim extends string,
-  Quot extends string = '"'
-> = {
-  [Key in keyof ReducedResource]: InterpolatedConditionsNames<
-    ReducedResource[Key],
-    Prefix,
-    Postfix,
-    Delim,
-    Quot
-  >;
-};
 
 export type InterpolateConditions<
   ResourceString extends string,

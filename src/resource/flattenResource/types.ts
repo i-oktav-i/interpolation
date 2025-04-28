@@ -1,9 +1,8 @@
-import { Prettify, UnionToIntersection } from './helpers';
-import { InterpolateInsertion } from './insertion';
+import { UnionToIntersection } from '../../types';
 
-type AnyResourceOrString = AnyResource | string;
-type AnyObjectResource = { [key: string]: AnyResourceOrString };
-type AnyArrayResource = AnyResourceOrString[];
+export type AnyResourceOrString = AnyResource | string;
+export type AnyObjectResource = { [key: string]: AnyResourceOrString };
+export type AnyArrayResource = AnyResourceOrString[];
 
 export type AnyResource = AnyObjectResource | AnyArrayResource;
 
@@ -11,7 +10,7 @@ type AddPrefix<Value extends string, Prefix extends string> = Prefix extends ''
   ? Value
   : `${Prefix}.${Value}`;
 
-type _ReduceKeys<
+type _FlattenResource<
   Resource extends AnyResource,
   Path extends string
 > = UnionToIntersection<
@@ -22,31 +21,19 @@ type _ReduceKeys<
         ? Resource[Keys] extends string
           ? { [x in NextPath]: Resource[Keys] }
           : Resource[Keys] extends AnyResource
-          ? _ReduceKeys<Resource[Keys], NextPath>
+          ? _FlattenResource<Resource[Keys], NextPath>
           : never
         : never
       : never
     : never
 >;
 
-export type ReduceKeys<Resource extends AnyResource> = Prettify<
-  _ReduceKeys<Resource, ''> extends infer Reduced extends Record<string, string>
-    ? Reduced
-    : never
->;
-
-export type InterpolateInsertionsToReducesResource<
-  ReducedResource extends Record<string, string>,
-  Prefix extends string,
-  Postfix extends string
-> = {
-  [Key in keyof ReducedResource]: InterpolateInsertion<
-    ReducedResource[Key],
-    Prefix,
-    Postfix,
-    ReducedResource
-  >;
-};
+export type FlattenResource<Resource extends AnyResource> = _FlattenResource<
+  Resource,
+  ''
+> extends infer Reduced extends Record<string, string>
+  ? Reduced
+  : never;
 
 /**
  * Проверяет элементы массива на допустимые значения локали.

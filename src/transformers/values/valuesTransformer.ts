@@ -1,0 +1,43 @@
+import {
+  InterpolatedValuesNames,
+  InterpolateValues,
+  Value,
+} from './interpolatedValues';
+import { getValuesRegExp } from './utils';
+
+export type ValuesTransformerParams<
+  ResourceString extends string,
+  Prefix extends string,
+  Postfix extends string
+> = InterpolatedValuesNames<
+  ResourceString,
+  Prefix,
+  Postfix
+> extends infer U extends string
+  ? [U] extends [never]
+    ? { values?: {} }
+    : {
+        values: Record<U, Value>;
+      }
+  : never;
+
+export const valuesTransformer = <
+  ResourceString extends string,
+  Params extends Record<string, Value>,
+  Prefix extends string,
+  Postfix extends string
+>(
+  resourceString: ResourceString,
+  params: Params,
+  prefix: Prefix,
+  postfix: Postfix
+): InterpolateValues<ResourceString, Prefix, Postfix, Params> => {
+  const valuesRegExp = getValuesRegExp({ values: params, prefix, postfix });
+
+  return resourceString.replace(valuesRegExp, (...match) => {
+    const valueName = match[1];
+    const value = params[valueName];
+
+    return String(value);
+  }) as any;
+};
