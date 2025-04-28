@@ -164,8 +164,12 @@ export type InterpolateConditions<
     ? Start
     : '',
   ConditionValue = Conditions[ParsedData['name']],
-  InterpolatingValue extends string = ConditionValue extends FalsyType
-    ? ParsedData['ifFalse']
+  FalsyIntersection = ConditionValue & FalsyType,
+  FalsyInterpolatingValue extends string = [FalsyIntersection] extends [never]
+    ? never
+    : ParsedData['ifFalse'],
+  TruthyInterpolatingValue extends string = ConditionValue extends FalsyType
+    ? never
     : ParsedData['ifTrue']
 > = [ParsedData['name']] extends [never]
   ? [ParsedData['rest']] extends [never]
@@ -186,5 +190,7 @@ export type InterpolateConditions<
       Delim,
       Quot,
       Conditions,
-      `${ResultStart}${ParsedData['start']}${InterpolatingValue}`
+      `${ResultStart}${ParsedData['start']}${
+        | TruthyInterpolatingValue
+        | FalsyInterpolatingValue}`
     >;
