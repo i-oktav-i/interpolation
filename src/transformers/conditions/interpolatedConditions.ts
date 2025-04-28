@@ -1,4 +1,4 @@
-import { ForbiddenCharsInNames, Trim } from '../../types';
+import type { ForbiddenCharsInNames, Trim } from '../../types/index.ts';
 
 export type Negation = '!';
 export type FalsyType = false | 0 | '' | null | undefined;

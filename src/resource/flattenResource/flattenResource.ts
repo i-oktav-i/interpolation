@@ -1,9 +1,9 @@
-import {
+import type {
   AnyObjectResource,
   AnyResource,
   AnyResourceOrString,
   FlattenResource,
-} from './types';
+} from './types.ts';
 
 const isEmptyString = (value: string): value is '' => value === '';
 

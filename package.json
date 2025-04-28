@@ -12,7 +12,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "typescript": "^5.5.4"
+    "typescript": "^5.8.3"
   },
   "devDependencies": {
     "type-testing": "^0.2.0"

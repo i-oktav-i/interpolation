@@ -3,7 +3,7 @@ import type {
   InterpolateConditions,
   InterpolatedConditionsNames,
   Negation,
-} from './interpolatedConditions';
+} from './interpolatedConditions.ts';
 
 // #region Setup
 

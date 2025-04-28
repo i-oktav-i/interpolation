@@ -1,4 +1,4 @@
 export {
   valuesTransformer,
   type ValuesTransformerParams,
-} from './valuesTransformer';
+} from './valuesTransformer.ts';

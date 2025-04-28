@@ -1,2 +1,2 @@
-export { flattenResource } from './flattenResource';
-export type * from './types';
+export { flattenResource } from './flattenResource.ts';
+export type * from './types.ts';

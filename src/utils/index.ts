@@ -1,1 +1,1 @@
-export { escapeRegExp } from './escapeRegExp';
+export { escapeRegExp } from './escapeRegExp.ts';

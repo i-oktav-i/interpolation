@@ -1,4 +1,4 @@
-import { UnionToIntersection } from '../../types';
+import type { UnionToIntersection } from '../../types/index.ts';
 
 export type AnyResourceOrString = AnyResource | string;
 export type AnyObjectResource = { [key: string]: AnyResourceOrString };

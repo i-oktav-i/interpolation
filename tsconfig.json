@@ -6,7 +6,9 @@
     "esModuleInterop": true,
     "lib": ["ESNext"],
     "strict": true,
-    "declaration": true
+    "declaration": true,
+    "erasableSyntaxOnly": true,
+    "allowImportingTsExtensions": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]

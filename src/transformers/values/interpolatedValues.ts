@@ -1,4 +1,4 @@
-import { ForbiddenCharsInNames, Trim } from '../../types';
+import type { ForbiddenCharsInNames, Trim } from '../../types/index.ts';
 
 export type Value = string | number;
 

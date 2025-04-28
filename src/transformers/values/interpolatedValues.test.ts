@@ -2,7 +2,7 @@ import type { Equal, TrueCases } from 'type-testing';
 import type {
   InterpolatedValuesNames,
   InterpolateValues,
-} from './interpolatedValues';
+} from './interpolatedValues.ts';
 
 type FirstValueName = 'value1';
 type SecondValueName = 'value2';

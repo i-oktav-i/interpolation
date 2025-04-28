@@ -1,9 +1,9 @@
-import {
+import type {
   InterpolatedValuesNames,
   InterpolateValues,
   Value,
-} from './interpolatedValues';
-import { getValuesRegExp } from './utils';
+} from './interpolatedValues.ts';
+import { getValuesRegExp } from './utils.ts';
 
 export type ValuesTransformerParams<
   ResourceString extends string,

@@ -1,16 +1,16 @@
 import {
-  AnyResource,
+  type AnyResource,
   extract,
-  ExtractResult,
+  type ExtractResult,
   flattenResource,
-  ValidateResource,
-} from './resource';
+  type ValidateResource,
+} from './resource/index.ts';
 import {
   conditionsTransformer,
-  ConditionsTransformerParams,
+  type ConditionsTransformerParams,
   valuesTransformer,
-  ValuesTransformerParams,
-} from './transformers';
+  type ValuesTransformerParams,
+} from './transformers/index.ts';
 
 export const create = <
   const Resource extends [Resource] extends [infer U extends AnyResource]

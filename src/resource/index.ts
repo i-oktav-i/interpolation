@@ -1,4 +1,4 @@
-export { extract, type ExtractResult } from './extract';
+export { extract, type ExtractResult } from './extract.ts';
 export {
   flattenResource,
   type AnyArrayResource,
@@ -7,4 +7,4 @@ export {
   type AnyResourceOrString,
   type FlattenResource,
   type ValidateResource,
-} from './flattenResource';
+} from './flattenResource/index.ts';

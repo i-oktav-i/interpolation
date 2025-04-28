@@ -1,4 +1,4 @@
-import { escapeRegExp } from '../../utils';
+import { escapeRegExp } from '../../utils/index.ts';
 
 export type GetConditionsRegParams = {
   prefix: string;

@@ -1,9 +1,9 @@
-import {
+import type {
   InterpolateConditions,
   InterpolatedConditionsNames,
-} from './interpolatedConditions';
+} from './interpolatedConditions.ts';
 
-import { getConditionsRegExp } from './utils';
+import { getConditionsRegExp } from './utils.ts';
 
 export type ConditionsTransformerParams<
   ResourceString extends string,

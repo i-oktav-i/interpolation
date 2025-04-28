@@ -1,4 +1,4 @@
 export {
   conditionsTransformer,
   type ConditionsTransformerParams,
-} from './conditionsTransformer';
+} from './conditionsTransformer.ts';

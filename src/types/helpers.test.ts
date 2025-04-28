@@ -6,7 +6,7 @@ import type {
   Trim,
   TupleOf,
   UnionToIntersection,
-} from './helpers';
+} from './helpers.ts';
 
 type TupleOfTest = TrueCases<
   [
