@@ -1,6 +1,6 @@
 import type { ForbiddenCharsInNames, Trim } from '../../types/index.ts';
 
-export type Value = string | number;
+export type Value = string | number | bigint | boolean | null | undefined;
 
 export type InterpolatedValuesNames<
   ResourceString extends string,
@@ -36,7 +36,7 @@ export type InterpolateValues<
   ResourceString extends string,
   Prefix extends string,
   Postfix extends string,
-  Values extends Record<string, string | number>,
+  Values extends Record<string, Value>,
   ResultStart extends string = ''
 > = ResourceString extends `${infer Start}${Prefix}${infer RawName}${Postfix}${infer Rest}`
   ? Trim<RawName> extends infer Name extends keyof Values

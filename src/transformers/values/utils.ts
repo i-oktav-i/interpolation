@@ -1,9 +1,10 @@
 import { escapeRegExp } from '../../utils/index.ts';
+import { type Value } from './interpolatedValues.ts';
 
 export type GetValuesRegParams = {
   prefix: string;
   postfix: string;
-  values: Record<string, string | number>;
+  values: Record<string, Value>;
 };
 
 export const getValuesRegExp = ({
