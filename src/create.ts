@@ -8,6 +8,8 @@ import {
 import {
   conditionsTransformer,
   type ConditionsTransformerParams,
+  insertionsTransformer,
+  type InterpolateInsertion,
   valuesTransformer,
   type ValuesTransformerParams,
 } from './transformers/index.ts';
@@ -22,7 +24,9 @@ export const create = <
   ConditionsPrefix extends string = '{{?',
   ConditionsPostfix extends string = '}}',
   ConditionsDelim extends string = '::',
-  ConditionsQuot extends string = '"'
+  ConditionsQuot extends string = '"',
+  InsertionsPrefix extends string = '{{>',
+  InsertionsPostfix extends string = '}}'
 >({
   resource,
   valuesPrefix = '{{' as ValuesPrefix,
@@ -31,6 +35,8 @@ export const create = <
   conditionsPostfix = '}}' as ConditionsPostfix,
   conditionsDelim = '::' as ConditionsDelim,
   conditionsQuot = '"' as ConditionsQuot,
+  insertionsPrefix = '{{>' as InsertionsPrefix,
+  insertionsPostfix = '}}' as InsertionsPostfix,
 }: {
   resource: Resource;
   allowAnyString?: AllowAnyStrings;
@@ -40,20 +46,28 @@ export const create = <
   conditionsPostfix?: ConditionsPostfix;
   conditionsDelim?: ConditionsDelim;
   conditionsQuot?: ConditionsQuot;
+  insertionsPrefix?: InsertionsPrefix;
+  insertionsPostfix?: InsertionsPostfix;
 }) => {
   const flatResource = flattenResource(resource);
 
   const interpolate = <
     Key extends (keyof typeof flatResource & string) | (string & {}),
     const Params extends ConditionsTransformerParams<
-      TExtractResult,
+      TInsertionsResult,
       ConditionsPrefix,
       ConditionsPostfix,
       ConditionsDelim,
       ConditionsQuot
     > &
-      ValuesTransformerParams<TExtractResult, ValuesPrefix, ValuesPostfix>,
+      ValuesTransformerParams<TInsertionsResult, ValuesPrefix, ValuesPostfix>,
     TExtractResult extends ExtractResult<typeof flatResource, Key>,
+    TInsertionsResult extends InterpolateInsertion<
+      TExtractResult,
+      InsertionsPrefix,
+      InsertionsPostfix,
+      typeof flatResource
+    >,
     const ParamsParam extends {} extends Params
       ? [params?: Params]
       : [params: Params]
@@ -62,8 +76,14 @@ export const create = <
     ...[params]: ParamsParam
   ) => {
     const extractedResource = extract(flatResource, key);
-    const interpolatedConditions = conditionsTransformer(
+    const interpolatedInsertions = insertionsTransformer(
       extractedResource,
+      flatResource,
+      insertionsPrefix,
+      insertionsPostfix
+    );
+    const interpolatedConditions = conditionsTransformer(
+      interpolatedInsertions,
       params?.values as NonNullable<ParamsParam[0]>['values'],
       conditionsPrefix,
       conditionsPostfix,
