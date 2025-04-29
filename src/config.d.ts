@@ -1,0 +1,3 @@
+interface InterpolationTemplatesDefaultOptions {}
+
+interface InterpolationTemplatesOptions {}

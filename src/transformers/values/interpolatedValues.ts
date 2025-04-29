@@ -1,6 +1,10 @@
-import type { ForbiddenCharsInNames, Trim } from '../../types/index.ts';
+import type {
+  ForbiddenCharsInNames,
+  GetConfigOptionValue,
+  Trim,
+} from '../../types/index.ts';
 
-export type Value = string | number | bigint | boolean | null | undefined;
+export type Value = GetConfigOptionValue<'interpolatingValuesConstraint'>;
 
 export type InterpolatedValuesNames<
   ResourceString extends string,
