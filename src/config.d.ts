@@ -1,3 +1,5 @@
-interface InterpolationTemplatesDefaultOptions {}
+interface InterpolationTemplatesDefaultOptions {
+  forbiddenCharsInNames: ' ';
+}
 
 interface InterpolationTemplatesOptions {}

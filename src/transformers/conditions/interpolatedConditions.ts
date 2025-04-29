@@ -1,11 +1,11 @@
-import type { ForbiddenCharsInNames, Trim } from '../../types/index.ts';
+import type { ForbiddenCharsInNamesOption, Trim } from '../../types/index.ts';
 
 export type Negation = '!';
 export type FalsyType = false | 0 | '' | null | undefined;
 
 type IsEmptyString<T extends string> = T extends '' ? true : false;
 type IsCorrectName<Name extends string> = Name extends
-  | `${string}${ForbiddenCharsInNames}${string}`
+  | `${string}${ForbiddenCharsInNamesOption}${string}`
   | ''
   ? false
   : true;

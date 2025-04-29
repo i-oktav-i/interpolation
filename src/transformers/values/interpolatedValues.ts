@@ -1,5 +1,5 @@
 import type {
-  ForbiddenCharsInNames,
+  ForbiddenCharsInNamesOption,
   GetConfigOptionValue,
   Trim,
 } from '../../types/index.ts';
@@ -13,7 +13,7 @@ export type InterpolatedValuesNames<
   Names extends string = never
 > = ResourceString extends `${string}${Prefix}${infer RawName}${Postfix}${infer Rest}`
   ? Trim<RawName> extends infer Name extends string
-    ? Name extends `${string}${ForbiddenCharsInNames}${string}` | ''
+    ? Name extends `${string}${ForbiddenCharsInNamesOption}${string}` | ''
       ? InterpolatedValuesNames<
           `${RawName}${Postfix}${Rest}`,
           Prefix,
