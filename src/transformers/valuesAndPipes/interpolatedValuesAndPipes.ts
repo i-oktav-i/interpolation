@@ -1,0 +1,235 @@
+import type {
+  CheckName,
+  GetConfigOptionValue,
+  Split,
+  Trim,
+} from '../../types/index.ts';
+
+export type Value = GetConfigOptionValue<'interpolatingValuesConstraint'>;
+
+export type Pipe = (value: Value) => Value;
+
+type CheckNames<
+  ValueName extends string,
+  PipeName extends string,
+  ValueNameLimitation extends string,
+  PipeNameLimitation extends string
+> =
+  | CheckName<ValueName>
+  | (ValueName extends ValueNameLimitation ? true : false)
+  | CheckName<PipeName>
+  | (PipeName extends PipeNameLimitation ? true : false) extends true
+  ? true
+  : false;
+
+type AnyRawParts = {
+  expression: string;
+  valueName: string;
+  pipeName: string;
+  start: string;
+  rest: string;
+};
+
+type GetRawTemplateParts<
+  ResourceString extends string,
+  Prefix extends string,
+  Postfix extends string,
+  PipesDelim extends string
+> = ResourceString extends `${infer Start}${Prefix}${infer Expression}${Postfix}${infer Rest}`
+  ? Expression extends `${infer RawName}${PipesDelim}${infer PipesExpression}`
+    ? {
+        expression: Expression;
+        valueName: RawName;
+        pipeName: Split<PipesExpression, PipesDelim>;
+        start: Start;
+        rest: Rest;
+      }
+    : {
+        expression: Expression;
+        valueName: Expression;
+        pipeName: never;
+        start: Start;
+        rest: Rest;
+      }
+  : never;
+
+type AnyParsedData = {
+  valueName: string;
+  pipeName: string;
+  start: string;
+  rest: string;
+};
+
+type ParseResourceString<
+  ResourceString extends string,
+  Prefix extends string,
+  Postfix extends string,
+  PipesDelim extends string,
+  ValueNameLimitation extends string = string,
+  PipeNameLimitation extends string = string,
+  RawData extends AnyRawParts = GetRawTemplateParts<
+    ResourceString,
+    Prefix,
+    Postfix,
+    PipesDelim
+  >,
+  ValueName extends string = Trim<RawData['valueName']>,
+  PipeName extends string = Trim<RawData['pipeName']>,
+  IsTemplateCorrect extends boolean = CheckNames<
+    ValueName,
+    PipeName,
+    ValueNameLimitation,
+    PipeNameLimitation
+  >
+> = [RawData] extends [never]
+  ? never
+  : IsTemplateCorrect extends true
+  ? {
+      valueName: ValueName;
+      pipeName: PipeName;
+      start: RawData['start'];
+      rest: RawData['rest'];
+    }
+  : {
+      valueName: never;
+      pipeName: never;
+      start: `${RawData['start']}${Prefix}`;
+      rest: `${RawData['expression']}${Postfix}${RawData['rest']}`;
+    };
+
+type ExtractRawName<
+  Expression extends string,
+  PipesDelim extends string
+> = Expression extends `${infer RawName}${PipesDelim}${string}`
+  ? RawName
+  : Expression;
+
+type CheckPipesExpression<
+  Expression extends string,
+  PipesDelim extends string,
+  RawPipeName extends string = Split<Expression, PipesDelim>,
+  PipeName extends string = Trim<RawPipeName>
+> = CheckName<PipeName>;
+
+type ExtractName<
+  Expression extends string,
+  PipesDelim extends string,
+  RawValueName extends string = ExtractRawName<Expression, PipesDelim>,
+  ValueName extends string = Trim<RawValueName>,
+  IsCorrectValueName extends boolean = CheckName<ValueName>,
+  IsCorrectExpression extends boolean = IsCorrectValueName extends true
+    ? CheckPipesExpression<
+        Expression extends `${RawValueName}${PipesDelim}${infer Rest}`
+          ? Rest
+          : never,
+        PipesDelim
+      >
+    : false
+> = IsCorrectExpression extends true ? ValueName : never;
+
+export type InterpolatedValuesNames<
+  ResourceString extends string,
+  Prefix extends string,
+  Postfix extends string,
+  PipesDelim extends string,
+  Names extends string = never,
+  ParsedData extends AnyParsedData = AnyParsedData &
+    ParseResourceString<ResourceString, Prefix, Postfix, PipesDelim>
+> = [ParsedData['valueName']] extends [never]
+  ? [ParsedData['rest']] extends [never]
+    ? Names
+    : InterpolatedValuesNames<
+        ParsedData['rest'],
+        Prefix,
+        Postfix,
+        PipesDelim,
+        Names
+      >
+  : InterpolatedValuesNames<
+      ParsedData['rest'],
+      Prefix,
+      Postfix,
+      PipesDelim,
+      Names | ParsedData['valueName']
+    >;
+
+export type InterpolatedPipesNames<
+  ResourceString extends string,
+  Prefix extends string,
+  Postfix extends string,
+  PipesDelim extends string,
+  Names extends string = never,
+  ParsedData extends AnyParsedData = AnyParsedData &
+    ParseResourceString<ResourceString, Prefix, Postfix, PipesDelim>
+> = [ParsedData['pipeName']] extends [never]
+  ? [ParsedData['rest']] extends [never]
+    ? Names
+    : InterpolatedPipesNames<
+        ParsedData['rest'],
+        Prefix,
+        Postfix,
+        PipesDelim,
+        Names
+      >
+  : InterpolatedPipesNames<
+      ParsedData['rest'],
+      Prefix,
+      Postfix,
+      PipesDelim,
+      Names | ParsedData['pipeName']
+    >;
+
+export type InterpolateValuesAndPipes<
+  ResourceString extends string,
+  Prefix extends string,
+  Postfix extends string,
+  PipesDelim extends string,
+  Values extends Record<string, Value>,
+  PipeName extends string,
+  ResultStart extends string = '',
+  ParsedData extends AnyParsedData = AnyParsedData &
+    ParseResourceString<
+      ResourceString,
+      Prefix,
+      Postfix,
+      PipesDelim,
+      keyof Values & string,
+      PipeName
+    >
+> = [ParsedData['valueName']] extends [never]
+  ? [ParsedData['rest']] extends [never]
+    ? `${ResultStart}${ResourceString}`
+    : InterpolateValuesAndPipes<
+        ParsedData['rest'],
+        Prefix,
+        Postfix,
+        PipesDelim,
+        Values,
+        PipeName,
+        `${ResultStart}${ParsedData['start']}`
+      >
+  : InterpolateValuesAndPipes<
+      ParsedData['rest'],
+      Prefix,
+      Postfix,
+      PipesDelim,
+      Values,
+      PipeName,
+      `${ResultStart}${ParsedData['start']}${[ParsedData['pipeName']] extends [
+        never
+      ]
+        ? Values[ParsedData['valueName']]
+        : string}`
+    >;
+
+type T = InterpolateValuesAndPipes<
+  '{{name}} ! {{name}} is {{age}}',
+  '{{',
+  '}}',
+  '|',
+  {
+    name: '1';
+    age: '2';
+  },
+  string
+>;

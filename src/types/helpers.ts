@@ -1,3 +1,5 @@
+import type { ForbiddenCharsInNamesOption } from './options.ts';
+
 export type TrimLeft<Value extends string> =
   Value extends ` ${infer TrimmedLeft}` ? TrimLeft<TrimmedLeft> : Value;
 export type TrimRight<Value extends string> =
@@ -93,3 +95,17 @@ export type Range<
 > = [RangeEnd] extends [never]
   ? Enumerate<RangeStartOfEnd>
   : Exclude<Enumerate<RangeEnd>, Enumerate<RangeStartOfEnd>>;
+
+export type CheckName<Name extends string> = Name extends
+  | `${string}${ForbiddenCharsInNamesOption}${string}`
+  | ''
+  ? false
+  : true;
+
+export type Split<
+  T extends string,
+  Delim extends string,
+  Result extends string = never
+> = T extends `${infer First}${Delim}${infer Rest}`
+  ? Split<Rest, Delim, Result | First>
+  : Result | T;

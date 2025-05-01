@@ -11,3 +11,10 @@ export {
   valuesTransformer,
   type ValuesTransformerParams,
 } from './values/index.ts';
+export {
+  valuesAndPipesTransformer,
+  type InterpolatedPipesNames,
+  type Pipe,
+  type Value,
+  type ValuesAndPipesTransformerParams,
+} from './valuesAndPipes/index.ts';
