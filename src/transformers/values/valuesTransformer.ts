@@ -21,7 +21,23 @@ export type ValuesTransformerParams<
       }
   : never;
 
-export const valuesTransformer = <
+export const valuesTransformer = (
+  resourceString: string,
+  params: Record<string, Value>,
+  prefix: string,
+  postfix: string
+) => {
+  const valuesRegExp = getValuesRegExp({ values: params, prefix, postfix });
+
+  return resourceString.replace(valuesRegExp, (...match) => {
+    const valueName = match[1];
+    const value = params[valueName];
+
+    return String(value);
+  });
+};
+
+export const typedValuesTransformer = valuesTransformer as <
   ResourceString extends string,
   Params extends Record<string, Value>,
   Prefix extends string,
@@ -31,13 +47,4 @@ export const valuesTransformer = <
   params: Params,
   prefix: Prefix,
   postfix: Postfix
-): InterpolateValues<ResourceString, Prefix, Postfix, Params> => {
-  const valuesRegExp = getValuesRegExp({ values: params, prefix, postfix });
-
-  return resourceString.replace(valuesRegExp, (...match) => {
-    const valueName = match[1];
-    const value = params[valueName];
-
-    return String(value);
-  }) as any;
-};
+) => InterpolateValues<ResourceString, Prefix, Postfix, Params>;

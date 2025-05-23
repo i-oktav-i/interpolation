@@ -1,5 +1,4 @@
 import {
-  type AnyResource,
   extract,
   type ExtractResult,
   flattenResource,
@@ -8,73 +7,114 @@ import {
 import {
   conditionsTransformer,
   type ConditionsTransformerParams,
+  type GetAllPipesNames,
   insertionsTransformer,
+  type InterpolateConditions,
   type InterpolateInsertion,
-  valuesTransformer,
-  type ValuesTransformerParams,
+  type InterpolateValuesAndPipes,
+  type PipesParam,
+  valuesAndPipesTransformer,
+  type ValuesAndPipesTransformerParams,
 } from './transformers/index.ts';
+import { type AnyResource } from './types/resource.ts';
 
 export const create = <
-  const Resource extends [Resource] extends [infer U extends AnyResource]
-    ? ValidateResource<U, AllowAnyStrings>
+  const Resource extends ValidateResource<
+    Resource,
+    AllowAnyStrings
+  > extends infer U extends AnyResource
+    ? U
     : never,
   AllowAnyStrings extends boolean = false,
   ValuesPrefix extends string = '{{',
   ValuesPostfix extends string = '}}',
+  PipesDelim extends string = '|',
   ConditionsPrefix extends string = '{{?',
   ConditionsPostfix extends string = '}}',
   ConditionsDelim extends string = '::',
   ConditionsQuot extends string = '"',
   InsertionsPrefix extends string = '{{>',
-  InsertionsPostfix extends string = '}}'
+  InsertionsPostfix extends string = '}}',
+  PipeName extends string = GetAllPipesNames<
+    Resource,
+    ValuesPrefix,
+    ValuesPostfix,
+    PipesDelim
+  > extends infer U extends string
+    ? U
+    : never
 >({
   resource,
   valuesPrefix = '{{' as ValuesPrefix,
   valuesPostfix = '}}' as ValuesPostfix,
+  pipesDelim = '|' as PipesDelim,
   conditionsPrefix = '{{?' as ConditionsPrefix,
   conditionsPostfix = '}}' as ConditionsPostfix,
   conditionsDelim = '::' as ConditionsDelim,
   conditionsQuot = '"' as ConditionsQuot,
   insertionsPrefix = '{{>' as InsertionsPrefix,
   insertionsPostfix = '}}' as InsertionsPostfix,
+  pipes = {},
 }: {
   resource: Resource;
   allowAnyString?: AllowAnyStrings;
   valuesPrefix?: ValuesPrefix;
   valuesPostfix?: ValuesPostfix;
+  pipesDelim?: PipesDelim;
   conditionsPrefix?: ConditionsPrefix;
   conditionsPostfix?: ConditionsPostfix;
   conditionsDelim?: ConditionsDelim;
   conditionsQuot?: ConditionsQuot;
   insertionsPrefix?: InsertionsPrefix;
   insertionsPostfix?: InsertionsPostfix;
-}) => {
+} & PipesParam<PipeName>) => {
   const flatResource = flattenResource(resource);
 
   const interpolate = <
     Key extends (keyof typeof flatResource & string) | (string & {}),
     const Params extends ConditionsTransformerParams<
-      TInsertionsResult,
+      InsertionsTransformerResult,
       ConditionsPrefix,
       ConditionsPostfix,
       ConditionsDelim,
       ConditionsQuot
     > &
-      ValuesTransformerParams<TInsertionsResult, ValuesPrefix, ValuesPostfix>,
-    TExtractResult extends ExtractResult<typeof flatResource, Key>,
-    TInsertionsResult extends InterpolateInsertion<
+      ValuesAndPipesTransformerParams<
+        InsertionsTransformerResult,
+        ValuesPrefix,
+        ValuesPostfix,
+        PipesDelim
+      >,
+    const ParamsParam extends {} extends Params
+      ? [params?: Params]
+      : [params: Params],
+    TExtractResult extends string = ExtractResult<typeof flatResource, Key>,
+    InsertionsTransformerResult extends string = InterpolateInsertion<
       TExtractResult,
       InsertionsPrefix,
       InsertionsPostfix,
       typeof flatResource
     >,
-    const ParamsParam extends {} extends Params
-      ? [params?: Params]
-      : [params: Params]
+    ConditionsTransformerResult extends string = InterpolateConditions<
+      InsertionsTransformerResult,
+      ConditionsPrefix,
+      ConditionsPostfix,
+      ConditionsDelim,
+      ConditionsQuot,
+      NonNullable<ParamsParam[0]>['values']
+    >,
+    ValuesAndPipesTransformerResult extends string = InterpolateValuesAndPipes<
+      ConditionsTransformerResult,
+      ValuesPrefix,
+      ValuesPostfix,
+      PipesDelim,
+      NonNullable<ParamsParam[0]>['values'],
+      PipeName
+    >
   >(
     key: Key,
     ...[params]: ParamsParam
-  ) => {
+  ): ValuesAndPipesTransformerResult => {
     const extractedResource = extract(flatResource, key);
     const interpolatedInsertions = insertionsTransformer(
       extractedResource,
@@ -90,13 +130,16 @@ export const create = <
       conditionsDelim,
       conditionsQuot
     );
-    const interpolatedValues = valuesTransformer(
+    const interpolatedValues = valuesAndPipesTransformer(
       interpolatedConditions,
       params?.values as NonNullable<ParamsParam[0]>['values'],
+      pipes,
       valuesPrefix,
-      valuesPostfix
+      valuesPostfix,
+      pipesDelim
     );
-    return interpolatedValues;
+
+    return interpolatedValues as any;
   };
 
   return {

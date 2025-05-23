@@ -1,10 +1,10 @@
-import type { UnionToIntersection } from '../../types/index.ts';
-
-export type AnyResourceOrString = AnyResource | string;
-export type AnyObjectResource = { [key: string]: AnyResourceOrString };
-export type AnyArrayResource = AnyResourceOrString[];
-
-export type AnyResource = AnyObjectResource | AnyArrayResource;
+import type {
+  AnyArrayResource,
+  AnyObjectResource,
+  AnyResource,
+  AnyResourceOrString,
+  UnionToIntersection,
+} from '../../types/index.ts';
 
 type AddPrefix<Value extends string, Prefix extends string> = Prefix extends ''
   ? Value

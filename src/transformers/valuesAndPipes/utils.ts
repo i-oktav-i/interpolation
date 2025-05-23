@@ -29,4 +29,4 @@ export const getValuesAndPipesRegExp = ({
 };
 
 export const getPipesSplitterRegExp = (pipesDelim: string) =>
-  new RegExp(`\\s*${pipesDelim}\\s*`, 'g');
+  new RegExp(`\\s*${escapeRegExp(pipesDelim)}\\s*`, 'g');

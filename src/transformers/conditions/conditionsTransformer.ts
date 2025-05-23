@@ -25,28 +25,14 @@ export type ConditionsTransformerParams<
       }
   : never;
 
-export const conditionsTransformer = <
-  ResourceString extends string,
-  Params extends Record<string, any>,
-  Prefix extends string,
-  Postfix extends string,
-  Delim extends string,
-  Quot extends string = '"'
->(
-  resourceString: ResourceString,
-  params: Params,
-  prefix: Prefix,
-  postfix: Postfix,
-  delim: Delim,
-  quot: Quot = '"' as Quot
-): InterpolateConditions<
-  ResourceString,
-  Prefix,
-  Postfix,
-  Delim,
-  Quot,
-  Params
-> => {
+export const conditionsTransformer = (
+  resourceString: string,
+  params: Record<string, unknown>,
+  prefix: string,
+  postfix: string,
+  delim: string,
+  quot: string = '"'
+) => {
   const conditionsRegExp = getConditionsRegExp({
     conditions: params,
     delim,
@@ -62,5 +48,28 @@ export const conditionsTransformer = <
     const ifFalse = match[4];
 
     return Boolean(params[conditionName]) === negate ? ifFalse : ifTrue;
-  }) as any;
+  });
 };
+
+export const typedConditionsTransformer = conditionsTransformer as <
+  ResourceString extends string,
+  Params extends Record<string, any>,
+  Prefix extends string,
+  Postfix extends string,
+  Delim extends string,
+  Quot extends string = '"'
+>(
+  resourceString: ResourceString,
+  params: Params,
+  prefix: Prefix,
+  postfix: Postfix,
+  delim: Delim,
+  quot: Quot
+) => InterpolateConditions<
+  ResourceString,
+  Prefix,
+  Postfix,
+  Delim,
+  Quot,
+  Params
+>;

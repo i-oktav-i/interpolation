@@ -24,28 +24,14 @@ export type ValuesAndPipesTransformerParams<
       }
   : never;
 
-export const valuesAndPipesTransformer = <
-  ResourceString extends string,
-  Params extends Record<string, Value>,
-  Pipes extends Record<string, Pipe>,
-  Prefix extends string,
-  Postfix extends string,
-  PipesDelim extends string
->(
-  resourceString: ResourceString,
-  params: Params,
-  pipes: Pipes,
-  prefix: Prefix,
-  postfix: Postfix,
-  pipesDelim: PipesDelim
-): InterpolateValuesAndPipes<
-  ResourceString,
-  Prefix,
-  Postfix,
-  PipesDelim,
-  Params,
-  keyof Pipes & string
-> => {
+export const valuesAndPipesTransformer = (
+  resourceString: string,
+  params: Record<string, Value>,
+  pipes: Record<string, Pipe>,
+  prefix: string,
+  postfix: string,
+  pipesDelim: string
+) => {
   const valuesRegExp = getValuesAndPipesRegExp({
     values: params,
     prefix,
@@ -68,9 +54,33 @@ export const valuesAndPipesTransformer = <
 
     const transformedValue = pipesNames.reduce((memo, pipeName) => {
       const pipe = pipes[pipeName];
+
       return pipe(memo);
     }, value);
 
     return String(transformedValue);
-  }) as any;
+  });
 };
+
+export const typedValuesAndPipesTransformer = valuesAndPipesTransformer as <
+  ResourceString extends string,
+  Params extends Record<string, Value>,
+  Pipes extends Record<string, Pipe>,
+  Prefix extends string,
+  Postfix extends string,
+  PipesDelim extends string
+>(
+  resourceString: ResourceString,
+  params: Params,
+  pipes: Pipes,
+  prefix: Prefix,
+  postfix: Postfix,
+  pipesDelim: PipesDelim
+) => InterpolateValuesAndPipes<
+  ResourceString,
+  Prefix,
+  Postfix,
+  PipesDelim,
+  Params,
+  keyof Pipes & string
+>;

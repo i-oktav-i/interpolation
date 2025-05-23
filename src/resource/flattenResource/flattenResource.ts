@@ -2,8 +2,8 @@ import type {
   AnyObjectResource,
   AnyResource,
   AnyResourceOrString,
-  FlattenResource,
-} from './types.ts';
+} from '../../types/index.ts';
+import type { FlattenResource } from './types.ts';
 
 const isEmptyString = (value: string): value is '' => value === '';
 

@@ -1,6 +1,8 @@
 import type {
+  AnyResource,
   CheckName,
   GetConfigOptionValue,
+  GetResourceAllValues,
   Split,
   Trim,
 } from '../../types/index.ts';
@@ -8,6 +10,121 @@ import type {
 export type Value = GetConfigOptionValue<'interpolatingValuesConstraint'>;
 
 export type Pipe = (value: Value) => Value;
+
+export type InterpolatedValuesNames<
+  ResourceString extends string,
+  Prefix extends string,
+  Postfix extends string,
+  PipesDelim extends string,
+  Names extends string = never,
+  ParsedData extends AnyParsedData = AnyParsedData &
+    ParseResourceString<ResourceString, Prefix, Postfix, PipesDelim>
+> = [ParsedData['valueName']] extends [never]
+  ? [ParsedData['rest']] extends [never]
+    ? Names
+    : InterpolatedValuesNames<
+        ParsedData['rest'],
+        Prefix,
+        Postfix,
+        PipesDelim,
+        Names
+      >
+  : InterpolatedValuesNames<
+      ParsedData['rest'],
+      Prefix,
+      Postfix,
+      PipesDelim,
+      Names | ParsedData['valueName']
+    >;
+
+export type GetAllPipesNames<
+  Resource extends AnyResource,
+  Prefix extends string,
+  Postfix extends string,
+  PipesDelim extends string,
+  AllValues extends string = GetResourceAllValues<Resource>
+> = AllValues extends string
+  ? InterpolatedPipesNames<AllValues, Prefix, Postfix, PipesDelim>
+  : never;
+
+export type PipesParam<PipeName extends string> = [PipeName] extends [never]
+  ? { pipes?: {} }
+  : {
+      pipes: Record<PipeName & string, Pipe>;
+    };
+
+export type InterpolatedPipesNames<
+  ResourceString extends string,
+  Prefix extends string,
+  Postfix extends string,
+  PipesDelim extends string,
+  Names extends string = never,
+  ParsedData extends AnyParsedData = ParseResourceString<
+    ResourceString,
+    Prefix,
+    Postfix,
+    PipesDelim
+  >
+> = [ParsedData['pipeName']] extends [never]
+  ? [ParsedData['rest']] extends [never]
+    ? Names
+    : InterpolatedPipesNames<
+        ParsedData['rest'],
+        Prefix,
+        Postfix,
+        PipesDelim,
+        Names
+      >
+  : InterpolatedPipesNames<
+      ParsedData['rest'],
+      Prefix,
+      Postfix,
+      PipesDelim,
+      Names | ParsedData['pipeName']
+    >;
+
+export type InterpolateValuesAndPipes<
+  ResourceString extends string,
+  Prefix extends string,
+  Postfix extends string,
+  PipesDelim extends string,
+  Values extends Record<string, Value>,
+  PipeName extends string,
+  ResultStart extends string = '',
+  ParsedData extends AnyParsedData = AnyParsedData &
+    ParseResourceString<
+      ResourceString,
+      Prefix,
+      Postfix,
+      PipesDelim,
+      keyof Values & string,
+      PipeName
+    >
+> = [ParsedData['valueName']] extends [never]
+  ? [ParsedData['rest']] extends [never]
+    ? `${ResultStart}${ResourceString}`
+    : InterpolateValuesAndPipes<
+        ParsedData['rest'],
+        Prefix,
+        Postfix,
+        PipesDelim,
+        Values,
+        PipeName,
+        `${ResultStart}${ParsedData['start']}`
+      >
+  : InterpolateValuesAndPipes<
+      ParsedData['rest'],
+      Prefix,
+      Postfix,
+      PipesDelim,
+      Values,
+      PipeName,
+      `${ResultStart}${ParsedData['start']}${[ParsedData['pipeName']] extends [
+        never
+      ]
+        ? Values[ParsedData['valueName']]
+        : string}`
+    >;
 
 type CheckNames<
   ValueName extends string,
@@ -96,140 +213,3 @@ type ParseResourceString<
       start: `${RawData['start']}${Prefix}`;
       rest: `${RawData['expression']}${Postfix}${RawData['rest']}`;
     };
-
-type ExtractRawName<
-  Expression extends string,
-  PipesDelim extends string
-> = Expression extends `${infer RawName}${PipesDelim}${string}`
-  ? RawName
-  : Expression;
-
-type CheckPipesExpression<
-  Expression extends string,
-  PipesDelim extends string,
-  RawPipeName extends string = Split<Expression, PipesDelim>,
-  PipeName extends string = Trim<RawPipeName>
-> = CheckName<PipeName>;
-
-type ExtractName<
-  Expression extends string,
-  PipesDelim extends string,
-  RawValueName extends string = ExtractRawName<Expression, PipesDelim>,
-  ValueName extends string = Trim<RawValueName>,
-  IsCorrectValueName extends boolean = CheckName<ValueName>,
-  IsCorrectExpression extends boolean = IsCorrectValueName extends true
-    ? CheckPipesExpression<
-        Expression extends `${RawValueName}${PipesDelim}${infer Rest}`
-          ? Rest
-          : never,
-        PipesDelim
-      >
-    : false
-> = IsCorrectExpression extends true ? ValueName : never;
-
-export type InterpolatedValuesNames<
-  ResourceString extends string,
-  Prefix extends string,
-  Postfix extends string,
-  PipesDelim extends string,
-  Names extends string = never,
-  ParsedData extends AnyParsedData = AnyParsedData &
-    ParseResourceString<ResourceString, Prefix, Postfix, PipesDelim>
-> = [ParsedData['valueName']] extends [never]
-  ? [ParsedData['rest']] extends [never]
-    ? Names
-    : InterpolatedValuesNames<
-        ParsedData['rest'],
-        Prefix,
-        Postfix,
-        PipesDelim,
-        Names
-      >
-  : InterpolatedValuesNames<
-      ParsedData['rest'],
-      Prefix,
-      Postfix,
-      PipesDelim,
-      Names | ParsedData['valueName']
-    >;
-
-export type InterpolatedPipesNames<
-  ResourceString extends string,
-  Prefix extends string,
-  Postfix extends string,
-  PipesDelim extends string,
-  Names extends string = never,
-  ParsedData extends AnyParsedData = AnyParsedData &
-    ParseResourceString<ResourceString, Prefix, Postfix, PipesDelim>
-> = [ParsedData['pipeName']] extends [never]
-  ? [ParsedData['rest']] extends [never]
-    ? Names
-    : InterpolatedPipesNames<
-        ParsedData['rest'],
-        Prefix,
-        Postfix,
-        PipesDelim,
-        Names
-      >
-  : InterpolatedPipesNames<
-      ParsedData['rest'],
-      Prefix,
-      Postfix,
-      PipesDelim,
-      Names | ParsedData['pipeName']
-    >;
-
-export type InterpolateValuesAndPipes<
-  ResourceString extends string,
-  Prefix extends string,
-  Postfix extends string,
-  PipesDelim extends string,
-  Values extends Record<string, Value>,
-  PipeName extends string,
-  ResultStart extends string = '',
-  ParsedData extends AnyParsedData = AnyParsedData &
-    ParseResourceString<
-      ResourceString,
-      Prefix,
-      Postfix,
-      PipesDelim,
-      keyof Values & string,
-      PipeName
-    >
-> = [ParsedData['valueName']] extends [never]
-  ? [ParsedData['rest']] extends [never]
-    ? `${ResultStart}${ResourceString}`
-    : InterpolateValuesAndPipes<
-        ParsedData['rest'],
-        Prefix,
-        Postfix,
-        PipesDelim,
-        Values,
-        PipeName,
-        `${ResultStart}${ParsedData['start']}`
-      >
-  : InterpolateValuesAndPipes<
-      ParsedData['rest'],
-      Prefix,
-      Postfix,
-      PipesDelim,
-      Values,
-      PipeName,
-      `${ResultStart}${ParsedData['start']}${[ParsedData['pipeName']] extends [
-        never
-      ]
-        ? Values[ParsedData['valueName']]
-        : string}`
-    >;
-
-type T = InterpolateValuesAndPipes<
-  '{{name}} ! {{name}} is {{age}}',
-  '{{',
-  '}}',
-  '|',
-  {
-    name: '1';
-    age: '2';
-  },
-  string
->;
