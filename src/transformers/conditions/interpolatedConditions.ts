@@ -17,14 +17,14 @@ type IsTemplateCorrect<
   BeforeFalse extends string,
   BeforePostfix extends string,
   NameLimitation extends string = string
-> = [
-  IsCorrectName<Name>,
-  Name extends NameLimitation ? true : false,
-  IsEmptyString<Trim<BeforeDelim>>,
-  IsEmptyString<Trim<BeforeFalse>>,
-  IsEmptyString<Trim<BeforePostfix>>
-] extends [true, true, true, true, true]
-  ? true
+> =
+  | IsCorrectName<Name>
+  | (Name extends NameLimitation ? true : false)
+  | IsEmptyString<Trim<BeforeDelim>>
+  | IsEmptyString<Trim<BeforeFalse>>
+  | IsEmptyString<Trim<BeforePostfix>> extends true
+  ? // To avoid union distribution over boolean
+    true
   : false;
 
 type AnyRawParts = {
@@ -47,7 +47,7 @@ type GetRawTemplateParts<
   Quot extends string
 > = ResourceString extends `${infer Start}${Prefix}${infer Name}${Quot}${infer IfTrue}${Quot}${infer BeforeDelim}${Delim}${infer BeforeFalse}${Quot}${infer IfFalse}${Quot}${infer BeforePostfix}${Postfix}${infer Rest}`
   ? {
-      name: Trim<Name>;
+      name: Name;
       ifTrue: IfTrue;
       ifFalse: IfFalse;
       start: Start;

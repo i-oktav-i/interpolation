@@ -178,7 +178,8 @@ type InterpolateConditionsCases<
   Delim extends string,
   Quot extends string,
   CommonTemplate extends string = `${Prefix}${FirstCondition['name']}${Quot}${FirstCondition['ifTrue']}${Quot}${Delim}${Quot}${FirstCondition['ifFalse']}${Quot}${Postfix}`,
-  WrongTemplate extends string = `${FirstCondition['name']}${Quot}${FirstCondition['ifTrue']}${Quot}${Delim}${Quot}${FirstCondition['ifFalse']}${Quot}${Postfix}`
+  UnfinishedTemplate extends string = `${FirstCondition['name']}${Quot}${FirstCondition['ifTrue']}${Quot}${Delim}${Quot}${FirstCondition['ifFalse']}${Quot}${Postfix}`,
+  TemplateWithExtraCharsAndSpaces extends string = `${Prefix}    ${FirstCondition['name']}    ${Quot}${FirstCondition['ifTrue']}${Quot}${Delim}wrong${Quot}${FirstCondition['ifFalse']}${Quot}${Postfix}`
 > = {
   withoutNegationWithTrueCondition: {
     template: CommonTemplate;
@@ -201,9 +202,9 @@ type InterpolateConditionsCases<
     result: FirstCondition['ifTrue'];
   };
   withoutPrefix: {
-    template: WrongTemplate;
+    template: UnfinishedTemplate;
     values: Record<FirstCondition['name'], true>;
-    result: WrongTemplate;
+    result: UnfinishedTemplate;
   };
   doubleConditionValue: {
     template: `${Prefix}${FirstCondition['name']}${Quot}${FirstCondition['ifTrue']}${Quot}${Delim}${Quot}${FirstCondition['ifFalse']}${Quot}${Postfix}`;
@@ -214,6 +215,11 @@ type InterpolateConditionsCases<
     template: CommonTemplate;
     values: {};
     result: CommonTemplate;
+  };
+  withExtraChars: {
+    template: TemplateWithExtraCharsAndSpaces;
+    values: Record<FirstCondition['name'], true>;
+    result: TemplateWithExtraCharsAndSpaces;
   };
 };
 
