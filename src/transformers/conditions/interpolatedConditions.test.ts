@@ -7,25 +7,26 @@ import type {
 
 // #region Setup
 
-type FirstCondition = {
+export type FirstCondition = {
   name: 'condition1';
   ifTrue: 'first condition is true';
   ifFalse: 'first condition is false';
 };
-type SecondCondition = {
+
+export type SecondCondition = {
   name: 'condition2';
   ifTrue: 'second condition is true';
   ifFalse: 'second condition is false';
 };
 
-type DoubleMustache = {
+export type DoubleMustache = {
   prefix: '{{?';
   postfix: '}}';
   delim: '::';
   quot: '"';
 };
 
-type BashStyle = {
+export type BashStyle = {
   prefix: '#if';
   postfix: '#endif';
   delim: '#else';
@@ -168,11 +169,11 @@ type InterpolateConditionsCheck<
   Result
 >;
 
-type AnyInterpolateConditionsCases = Record<
+export type AnyInterpolateConditionsCases = Record<
   string,
   { template: string; result: string; values: Record<string, unknown> }
 >;
-type InterpolateConditionsCases<
+export type InterpolateConditionsCases<
   Prefix extends string,
   Postfix extends string,
   Delim extends string,
@@ -220,6 +221,11 @@ type InterpolateConditionsCases<
     template: TemplateWithExtraCharsAndSpaces;
     values: Record<FirstCondition['name'], true>;
     result: TemplateWithExtraCharsAndSpaces;
+  };
+  twoConditions: {
+    template: `${Prefix}${FirstCondition['name']}${Quot}${FirstCondition['ifTrue']}${Quot}${Delim}${Quot}${FirstCondition['ifFalse']}${Quot}${Postfix} ${Prefix}${SecondCondition['name']}${Quot}${SecondCondition['ifTrue']}${Quot}${Delim}${Quot}${SecondCondition['ifFalse']}${Quot}${Postfix}`;
+    values: Record<FirstCondition['name'] | SecondCondition['name'], true>;
+    result: `${FirstCondition['ifTrue']} ${SecondCondition['ifTrue']}`;
   };
 };
 

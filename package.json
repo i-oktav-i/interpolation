@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test **/*.test.ts"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +16,7 @@
     "typescript": "^5.8.3"
   },
   "devDependencies": {
+    "@types/node": "^22.15.21",
     "type-testing": "^0.2.0"
   }
 }
