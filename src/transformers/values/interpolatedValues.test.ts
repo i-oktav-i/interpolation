@@ -4,14 +4,18 @@ import type {
   InterpolateValues,
 } from './interpolatedValues.ts';
 
-type FirstValue = { name: 'first'; value: 'first value' };
-type SecondValue = { name: 'second'; value: 'second value' };
+export type FirstValue = { name: 'first'; value: 'first value' };
 
-type DoubleMustache = {
+export type SecondValue = { name: 'second'; value: 'second value' };
+
+type UnionValue = { name: 'union'; value: 123 | 'qwe' };
+
+export type DoubleMustache = {
   prefix: '{{';
   postfix: '}}';
 };
-type TemplateString = {
+
+export type TemplateString = {
   prefix: '${';
   postfix: '}';
 };
@@ -110,7 +114,7 @@ type InterpolateValuesCheck<
   Result extends string
 > = Equal<Result, InterpolateValues<ResourceString, Prefix, Postfix, Values>>;
 
-type AnyInterpolateValuesCases = Record<
+export type AnyInterpolateValuesCases = Record<
   string,
   {
     template: string;
@@ -119,7 +123,7 @@ type AnyInterpolateValuesCases = Record<
   }
 >;
 
-type InterpolateValuesCases<
+export type InterpolateValuesCases<
   Prefix extends string,
   Postfix extends string,
   CommonTemplate extends string = `${Prefix}${FirstValue['name']}${Postfix}`,
@@ -172,6 +176,17 @@ type InterpolateValuesCases<
     template: NoNameTemplate;
     values: Record<FirstValue['name'], FirstValue['value']>;
     result: NoNameTemplate;
+  };
+  union: {
+    template: `${Prefix}${UnionValue['name']}${Postfix}`;
+    values: Record<UnionValue['name'], UnionValue['value']>;
+    result: `${UnionValue['value']}`;
+  };
+  unionAndFirst: {
+    template: `${Prefix}${UnionValue['name']}${Postfix} ${Prefix}${FirstValue['name']}${Postfix}`;
+    values: Record<UnionValue['name'], UnionValue['value']> &
+      Record<FirstValue['name'], FirstValue['value']>;
+    result: `${UnionValue['value']} ${FirstValue['value']}`;
   };
 };
 
