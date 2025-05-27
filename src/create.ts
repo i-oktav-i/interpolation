@@ -88,9 +88,15 @@ export const create = <
     const ParamsParam extends {} extends Params
       ? [params?: Params]
       : [params: Params],
-    TExtractResult extends string = ExtractResult<typeof flatResource, Key>,
+    TExtractResult extends string | null = ExtractResult<
+      typeof flatResource,
+      Key
+    >,
+    Template extends string = TExtractResult extends string
+      ? TExtractResult
+      : never,
     InsertionsTransformerResult extends string = InterpolateInsertion<
-      TExtractResult,
+      Template,
       InsertionsPrefix,
       InsertionsPostfix,
       typeof flatResource
@@ -114,14 +120,22 @@ export const create = <
   >(
     key: Key,
     ...[params]: ParamsParam
-  ): ValuesAndPipesTransformerResult => {
+  ): TExtractResult extends string
+    ? ValuesAndPipesTransformerResult
+    : TExtractResult => {
     const extractedResource = extract(flatResource, key);
+
+    if (!extractedResource) return extractedResource as any;
+
     const interpolatedInsertions = insertionsTransformer(
       extractedResource,
       flatResource,
       insertionsPrefix,
       insertionsPostfix
     );
+
+    if (!params?.values) return interpolatedInsertions as any;
+
     const interpolatedConditions = conditionsTransformer(
       interpolatedInsertions,
       params?.values as NonNullable<ParamsParam[0]>['values'],
@@ -130,6 +144,7 @@ export const create = <
       conditionsDelim,
       conditionsQuot
     );
+
     const interpolatedValues = valuesAndPipesTransformer(
       interpolatedConditions,
       params?.values as NonNullable<ParamsParam[0]>['values'],
