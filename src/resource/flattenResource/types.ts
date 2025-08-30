@@ -56,18 +56,13 @@ export type FlattenResource<Resource extends AnyResource> = _FlattenResource<
  */
 type ValidateArrayValues<
   ArrayResource extends AnyArrayResource,
-  AllowString extends boolean,
-  ValidatedResult extends AnyResourceOrString[] = []
-> = ArrayResource extends readonly [
-  infer First extends AnyResourceOrString,
-  ...infer Rest extends AnyArrayResource
-]
-  ? ValidateArrayValues<
-      Rest,
-      AllowString,
-      [...ValidatedResult, _ValidateResource<First, AllowString>]
-    >
-  : ValidatedResult;
+  AllowString extends boolean
+> = {
+  [Key in keyof ArrayResource]: _ValidateResource<
+    ArrayResource[Key],
+    AllowString
+  >;
+};
 
 /**
  * Проверяет что массив конечной длинны и все его элементы
