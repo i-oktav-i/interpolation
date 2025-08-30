@@ -39,7 +39,7 @@ export const valuesTransformer = (
 
 export const typedValuesTransformer = valuesTransformer as <
   ResourceString extends string,
-  Params extends Record<string, Value>,
+  const Params extends Record<string, Value>,
   Prefix extends string,
   Postfix extends string
 >(

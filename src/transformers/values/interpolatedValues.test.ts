@@ -177,7 +177,7 @@ export type InterpolateValuesCases<
     values: Record<FirstValue['name'], FirstValue['value']>;
     result: NoNameTemplate;
   };
-  union: {
+  unionValue: {
     template: `${Prefix}${UnionValue['name']}${Postfix}`;
     values: Record<UnionValue['name'], UnionValue['value']>;
     result: `${UnionValue['value']}`;
