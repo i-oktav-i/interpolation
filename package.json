@@ -9,6 +9,9 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test **/*.test.ts"
   },
+  "engines": {
+    "node": ">=23"
+  },
   "keywords": [],
   "author": "",
   "license": "MIT",
