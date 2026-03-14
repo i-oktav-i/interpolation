@@ -10,19 +10,20 @@ export type ValuesAndPipesTransformerParams<
   ResourceString extends string,
   Prefix extends string,
   Postfix extends string,
-  PipesDelim extends string
-> = InterpolatedValuesNames<
-  ResourceString,
-  Prefix,
-  Postfix,
-  PipesDelim
-> extends infer U extends string
-  ? [U] extends [never]
-    ? { values?: {} }
-    : {
-        values: Record<U, Value>;
-      }
-  : never;
+  PipesDelim extends string,
+> =
+  InterpolatedValuesNames<
+    ResourceString,
+    Prefix,
+    Postfix,
+    PipesDelim
+  > extends infer U extends string
+    ? [U] extends [never]
+      ? { values?: {} }
+      : {
+          values: Record<U, Value>;
+        }
+    : never;
 
 export const valuesAndPipesTransformer = (
   resourceString: string,
@@ -30,7 +31,7 @@ export const valuesAndPipesTransformer = (
   pipes: Record<string, Pipe>,
   prefix: string,
   postfix: string,
-  pipesDelim: string
+  pipesDelim: string,
 ) => {
   const valuesRegExp = getValuesAndPipesRegExp({
     values: params,
@@ -49,7 +50,7 @@ export const valuesAndPipesTransformer = (
     if (!pipesExpression) return String(value);
 
     const [, ...pipesNames] = pipesExpression.split(
-      getPipesSplitterRegExp(pipesDelim)
+      getPipesSplitterRegExp(pipesDelim),
     );
 
     const transformedValue = pipesNames.reduce((memo, pipeName) => {
@@ -68,14 +69,14 @@ export const typedValuesAndPipesTransformer = valuesAndPipesTransformer as <
   Pipes extends Record<string, Pipe>,
   Prefix extends string,
   Postfix extends string,
-  PipesDelim extends string
+  PipesDelim extends string,
 >(
   resourceString: ResourceString,
   params: Params,
   pipes: Pipes,
   prefix: Prefix,
   postfix: Postfix,
-  pipesDelim: PipesDelim
+  pipesDelim: PipesDelim,
 ) => InterpolateValuesAndPipes<
   ResourceString,
   Prefix,

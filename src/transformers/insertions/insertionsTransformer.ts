@@ -1,11 +1,11 @@
-import type { InterpolateInsertion } from './types.ts';
+import type { InterpolateInsertion } from './interpolatedInsertions.ts';
 import { getInsertionRegExp } from './utils.ts';
 
 export const insertionsTransformer = (
   resourceString: string,
   values: Record<string, string>,
   prefix: string,
-  postfix: string
+  postfix: string,
 ): string => {
   const insertionsRegExp = getInsertionRegExp({ prefix, postfix });
 
@@ -24,10 +24,10 @@ export const typedInsertionsTransformer = insertionsTransformer as unknown as <
   ResourceString extends string,
   Prefix extends string,
   Postfix extends string,
-  Values extends Record<string, string>
+  Values extends Record<string, string>,
 >(
   resourceString: ResourceString,
   values: Values,
   prefix: Prefix,
-  postfix: Postfix
+  postfix: Postfix,
 ) => InterpolateInsertion<ResourceString, Prefix, Postfix, Values>;

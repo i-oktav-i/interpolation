@@ -4,7 +4,7 @@ export type InterpolatedInsertionNames<
   ResourceString extends string,
   Prefix extends string,
   Postfix extends string,
-  Paths extends string = never
+  Paths extends string = never,
 > = ResourceString extends `${string}${Prefix}${infer RawPath}${Postfix}${infer Rest}`
   ? Trim<RawPath> extends infer Path extends string
     ? Path extends `${string} ${string}` | ''
@@ -23,9 +23,10 @@ export type InterpolateInsertion<
   Prefix extends string,
   Postfix extends string,
   ReducedResource extends Record<string, string>,
-  ResultStart extends string = ''
+  ResultStart extends string = '',
 > = ResourceString extends `${infer Start}${Prefix}${infer RawResourcePath}${Postfix}${infer Rest}`
-  ? Trim<RawResourcePath> extends infer ResourcePath extends keyof ReducedResource
+  ? Trim<RawResourcePath> extends infer ResourcePath extends
+      keyof ReducedResource
     ? InterpolateInsertion<
         Rest,
         Prefix,

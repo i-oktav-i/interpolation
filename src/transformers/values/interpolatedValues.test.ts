@@ -26,7 +26,7 @@ type InterpolatedValuesNamesCheck<
   ResourceString extends string,
   Prefix extends string,
   Postfix extends string,
-  Result extends string
+  Result extends string,
 > = Equal<InterpolatedValuesNames<ResourceString, Prefix, Postfix>, Result>;
 
 type AnyInterpolatedValuesNamesCases = Record<
@@ -36,7 +36,7 @@ type AnyInterpolatedValuesNamesCases = Record<
 
 type InterpolatedValuesNamesCases<
   Prefix extends string,
-  Postfix extends string
+  Postfix extends string,
 > = {
   withoutSpaces: {
     template: `${Prefix}${FirstValue['name']}${Postfix}`;
@@ -83,7 +83,7 @@ type InterpolatedValuesNamesChecks<
     Prefix,
     Postfix
   >,
-  CaseName = keyof Cases
+  CaseName = keyof Cases,
 > = CaseName extends keyof Cases
   ? InterpolatedValuesNamesCheck<
       Cases[CaseName]['template'],
@@ -102,7 +102,7 @@ type InterpolatedValuesNamesTests = TrueCases<
     InterpolatedValuesNamesChecks<
       TemplateString['prefix'],
       TemplateString['postfix']
-    >
+    >,
   ]
 >;
 
@@ -111,7 +111,7 @@ type InterpolateValuesCheck<
   Prefix extends string,
   Postfix extends string,
   Values extends Record<string, string | number>,
-  Result extends string
+  Result extends string,
 > = Equal<Result, InterpolateValues<ResourceString, Prefix, Postfix, Values>>;
 
 export type AnyInterpolateValuesCases = Record<
@@ -128,7 +128,7 @@ export type InterpolateValuesCases<
   Postfix extends string,
   CommonTemplate extends string = `${Prefix}${FirstValue['name']}${Postfix}`,
   NoPrefixTemplate extends string = `${Prefix}${FirstValue['name']}`,
-  NoNameTemplate extends string = `${Prefix} ${Postfix}`
+  NoNameTemplate extends string = `${Prefix} ${Postfix}`,
 > = {
   withoutSpaces: {
     template: CommonTemplate;
@@ -197,7 +197,7 @@ type ValuesInterpolationCheck<
     Prefix,
     Postfix
   >,
-  CaseName = keyof Cases
+  CaseName = keyof Cases,
 > = CaseName extends keyof Cases
   ? InterpolateValuesCheck<
       Cases[CaseName]['template'],
@@ -217,6 +217,6 @@ type ValuesInterpolationTests = TrueCases<
     ValuesInterpolationCheck<
       TemplateString['prefix'],
       TemplateString['postfix']
-    >
+    >,
   ]
 >;
