@@ -1,346 +1,409 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
+import type {
+  DoubleMustache,
+  FirstValue,
+  SecondValue,
+  TemplateString,
+} from './interpolatedValues.test.ts';
 import type { InterpolateValues } from './interpolatedValues.ts';
-import { valuesTransformer } from './valuesTransformer.ts';
+import { typedValuesTransformer } from './valuesTransformer.ts';
 
-const firstValue = {
+const firstValue: FirstValue = {
   name: 'first',
-  value: ['first value 1', 'first value 2'],
-} as const;
-
-const secondValue = {
-  name: 'second',
-  value: ['second value 1', 'second value 2'],
-} as const;
-
-const doubleMustache = {
-  prefix: '{{',
-  postfix: '}}',
-} as const;
-
-const templateString = {
-  prefix: '${',
-  postfix: '}',
-} as const;
-
-const someText = 'Some text' as const;
-
-type TemplateSyntax<Prefix extends string, Postfix extends string> = {
-  prefix: Prefix;
-  postfix: Postfix;
+  value: 'first value',
 };
 
-describe('valuesTransformer tests', () => {
-  describe('One value, value provided', () => {
-    const getCase = <Prefix extends string, Postfix extends string>(
-      templateSyntax: TemplateSyntax<Prefix, Postfix>
-    ) => ({
-      template: [
-        `${templateSyntax.prefix}${firstValue.name}${templateSyntax.postfix}` as const,
-        `${templateSyntax.prefix}  ${firstValue.name}  ${templateSyntax.postfix}` as const,
-      ],
-      values: [
-        { [firstValue.name]: firstValue.value[0] },
-        { [firstValue.name]: firstValue.value[1] },
-      ],
-      result: [firstValue.value[0], firstValue.value[1]],
+const secondValue: SecondValue = {
+  name: 'second',
+  value: 'second value',
+};
+
+const firstValueParams = { [firstValue.name]: firstValue.value } as const;
+const firstAndSecondValues = {
+  [firstValue.name]: firstValue.value,
+  [secondValue.name]: secondValue.value,
+} as const;
+const countValue = {
+  name: 'count',
+  value: 42,
+} as const;
+const countValueParams = { [countValue.name]: countValue.value } as const;
+
+const doubleMustache: DoubleMustache = {
+  prefix: '{{',
+  postfix: '}}',
+};
+
+const templateString: TemplateString = {
+  prefix: '${',
+  postfix: '}',
+};
+
+const stringWithoutTemplate = 'Empty string' as const;
+
+type DoubleMustacheInterpolateValues<
+  Template extends string,
+  Values extends Record<string, string | number>,
+> = InterpolateValues<
+  Template,
+  typeof doubleMustache.prefix,
+  typeof doubleMustache.postfix,
+  Values
+>;
+
+type TemplateStringInterpolateValues<
+  Template extends string,
+  Values extends Record<string, string | number>,
+> = InterpolateValues<
+  Template,
+  typeof templateString.prefix,
+  typeof templateString.postfix,
+  Values
+>;
+
+const transformDoubleMustacheValues = <
+  Template extends string,
+  Values extends Record<string, string | number>,
+>(
+  template: Template,
+  values: Values,
+) =>
+  typedValuesTransformer(
+    template,
+    values,
+    doubleMustache.prefix,
+    doubleMustache.postfix,
+  );
+
+const transformTemplateStringValues = <
+  Template extends string,
+  Values extends Record<string, string | number>,
+>(
+  template: Template,
+  values: Values,
+) =>
+  typedValuesTransformer(
+    template,
+    values,
+    templateString.prefix,
+    templateString.postfix,
+  );
+
+const getDoubleMustacheTemplate = <Name extends string>({
+  name,
+}: {
+  name: Name;
+}) => `${doubleMustache.prefix}${name}${doubleMustache.postfix}` as const;
+
+const getDoubleMustacheSpacedTemplate = <Name extends string>({
+  name,
+}: {
+  name: Name;
+}) => `${doubleMustache.prefix}   ${name}   ${doubleMustache.postfix}` as const;
+
+const getTemplateStringTemplate = <Name extends string>({
+  name,
+}: {
+  name: Name;
+}) => `${templateString.prefix}${name}${templateString.postfix}` as const;
+
+const getTemplateStringSpacedTemplate = <Name extends string>({
+  name,
+}: {
+  name: Name;
+}) => `${templateString.prefix}   ${name}   ${templateString.postfix}` as const;
+
+describe('valuesTransformer', () => {
+  describe('Double Mustache', () => {
+    it('withoutSpaces', () => {
+      const template = getDoubleMustacheTemplate(firstValue);
+      const values = firstValueParams;
+
+      const expected: DoubleMustacheInterpolateValues<
+        typeof template,
+        typeof values
+      > = firstValue.value;
+
+      const actual = transformDoubleMustacheValues(template, values);
+
+      assert.equal(expected, actual);
     });
 
-    const getActual = <Prefix extends string, Postfix extends string>(
-      caseData: ReturnType<typeof getCase<Prefix, Postfix>>,
-      templateSyntax: TemplateSyntax<Prefix, Postfix>
-    ) => {
-      return caseData.template.map((template) =>
-        caseData.values.map((values) =>
-          valuesTransformer(
-            template,
-            values,
-            templateSyntax.prefix,
-            templateSyntax.postfix
-          )
-        )
-      );
-    };
+    it('withoutValue', () => {
+      const template = getDoubleMustacheTemplate(firstValue);
+      const values = {} as const;
 
-    it('Double Mustache', () => {
-      const doubleMustacheCase = getCase(doubleMustache);
+      const expected: DoubleMustacheInterpolateValues<
+        typeof template,
+        typeof values
+      > = template;
 
-      const actual = getActual(doubleMustacheCase, doubleMustache);
+      const actual = transformDoubleMustacheValues(template, values);
 
-      const expected: InterpolateValues<
-        (typeof doubleMustacheCase.template)[number],
-        (typeof doubleMustache)['prefix'],
-        (typeof doubleMustache)['postfix'],
-        (typeof doubleMustacheCase.values)[number]
-      >[] = doubleMustacheCase.result;
-
-      assert.deepEqual(actual, [expected, expected]);
+      assert.equal(expected, actual);
     });
 
-    it('Template String', () => {
-      const templateStringCase = getCase(templateString);
+    it('withSpaces', () => {
+      const template = getDoubleMustacheSpacedTemplate(firstValue);
+      const values = firstValueParams;
 
-      const actual = getActual(templateStringCase, templateString);
+      const expected: DoubleMustacheInterpolateValues<
+        typeof template,
+        typeof values
+      > = firstValue.value;
 
-      const expected: InterpolateValues<
-        (typeof templateStringCase.template)[number],
-        (typeof templateString)['prefix'],
-        (typeof templateString)['postfix'],
-        (typeof templateStringCase.values)[number]
-      >[] = templateStringCase.result;
+      const actual = transformDoubleMustacheValues(template, values);
 
-      assert.deepEqual(actual, [expected, expected]);
-    });
-  });
-
-  describe('One value, value not provided', () => {
-    const getCase = <Prefix extends string, Postfix extends string>(
-      templateSyntax: TemplateSyntax<Prefix, Postfix>
-    ) => ({
-      template: [
-        `${templateSyntax.prefix}${firstValue.name}${templateSyntax.postfix}` as const,
-        `${templateSyntax.prefix}  ${firstValue.name}  ${templateSyntax.postfix}` as const,
-      ],
-      values: {},
+      assert.equal(expected, actual);
     });
 
-    const getActual = <Prefix extends string, Postfix extends string>(
-      caseData: ReturnType<typeof getCase<Prefix, Postfix>>,
-      templateSyntax: TemplateSyntax<Prefix, Postfix>
-    ) => {
-      return caseData.template.map((template) =>
-        valuesTransformer(
-          template,
-          caseData.values,
-          templateSyntax.prefix,
-          templateSyntax.postfix
-        )
-      );
-    };
+    it('twoInRow', () => {
+      const template =
+        `${getDoubleMustacheTemplate(firstValue)}${getDoubleMustacheTemplate(secondValue)}` as const;
+      const values = firstAndSecondValues;
 
-    it('Double Mustache', () => {
-      const doubleMustacheCase = getCase(doubleMustache);
+      const expected: DoubleMustacheInterpolateValues<
+        typeof template,
+        typeof values
+      > = `${firstValue.value}${secondValue.value}`;
 
-      const actual = getActual(doubleMustacheCase, doubleMustache);
+      const actual = transformDoubleMustacheValues(template, values);
 
-      const expected: InterpolateValues<
-        (typeof doubleMustacheCase.template)[number],
-        (typeof doubleMustache)['prefix'],
-        (typeof doubleMustache)['postfix'],
-        typeof doubleMustacheCase.values
-      >[] = doubleMustacheCase.template;
-
-      assert.deepEqual(actual, expected);
+      assert.equal(expected, actual);
     });
 
-    it('Template String', () => {
-      const templateStringCase = getCase(templateString);
+    it('withAnd', () => {
+      const template =
+        `${getDoubleMustacheTemplate(firstValue)} and ${getDoubleMustacheTemplate(secondValue)}` as const;
+      const values = firstAndSecondValues;
 
-      const actual = getActual(templateStringCase, templateString);
+      const expected: DoubleMustacheInterpolateValues<
+        typeof template,
+        typeof values
+      > = `${firstValue.value} and ${secondValue.value}`;
 
-      const expected: InterpolateValues<
-        (typeof templateStringCase.template)[number],
-        (typeof templateString)['prefix'],
-        (typeof templateString)['postfix'],
-        typeof templateStringCase.values
-      >[] = templateStringCase.template;
+      const actual = transformDoubleMustacheValues(template, values);
 
-      assert.deepEqual(actual, expected);
-    });
-  });
-
-  describe('To values, values provided', () => {
-    const getCase = <Prefix extends string, Postfix extends string>(
-      templateSyntax: TemplateSyntax<Prefix, Postfix>
-    ) => ({
-      template: [
-        `${templateSyntax.prefix}${firstValue.name}${templateSyntax.postfix} ${templateSyntax.prefix}${secondValue.name}${templateSyntax.postfix}` as const,
-        `${templateSyntax.prefix}  ${firstValue.name}  ${templateSyntax.postfix} ${templateSyntax.prefix}  ${secondValue.name}  ${templateSyntax.postfix}` as const,
-      ],
-      values: [
-        {
-          [firstValue.name]: firstValue.value[0],
-          [secondValue.name]: secondValue.value[0],
-        },
-        {
-          [firstValue.name]: firstValue.value[1],
-          [secondValue.name]: secondValue.value[1],
-        },
-      ],
-      result: [
-        `${firstValue.value[0]} ${secondValue.value[0]}` as const,
-        `${firstValue.value[1]} ${secondValue.value[1]}` as const,
-      ],
+      assert.equal(expected, actual);
     });
 
-    const getActual = <Prefix extends string, Postfix extends string>(
-      caseData: ReturnType<typeof getCase<Prefix, Postfix>>,
-      templateSyntax: TemplateSyntax<Prefix, Postfix>
-    ) => {
-      return caseData.template.map((template) =>
-        caseData.values.map((values) =>
-          valuesTransformer(
-            template,
-            values,
-            templateSyntax.prefix,
-            templateSyntax.postfix
-          )
-        )
-      );
-    };
+    it('numberValue', () => {
+      const template = getDoubleMustacheTemplate(countValue);
+      const values = countValueParams;
 
-    it('Double Mustache', () => {
-      const doubleMustacheCase = getCase(doubleMustache);
+      const expected: DoubleMustacheInterpolateValues<
+        typeof template,
+        typeof values
+      > = '42';
 
-      const actual = getActual(doubleMustacheCase, doubleMustache);
+      const actual = transformDoubleMustacheValues(template, values);
 
-      const expected: InterpolateValues<
-        (typeof doubleMustacheCase.template)[number],
-        (typeof doubleMustache)['prefix'],
-        (typeof doubleMustache)['postfix'],
-        (typeof doubleMustacheCase.values)[number]
-      >[] = doubleMustacheCase.result;
-
-      assert.deepEqual(actual, [expected, expected]);
+      assert.equal(expected, actual);
     });
 
-    it('Template String', () => {
-      const templateStringCase = getCase(templateString);
+    it('sameInRow', () => {
+      const template =
+        `${getDoubleMustacheTemplate(firstValue)} ${getDoubleMustacheTemplate(firstValue)}` as const;
+      const values = firstValueParams;
 
-      const actual = getActual(templateStringCase, templateString);
+      const expected: DoubleMustacheInterpolateValues<
+        typeof template,
+        typeof values
+      > = `${firstValue.value} ${firstValue.value}`;
 
-      const expected: InterpolateValues<
-        (typeof templateStringCase.template)[number],
-        (typeof templateString)['prefix'],
-        (typeof templateString)['postfix'],
-        (typeof templateStringCase.values)[number]
-      >[] = templateStringCase.result;
+      const actual = transformDoubleMustacheValues(template, values);
 
-      assert.deepEqual(actual, [expected, expected]);
-    });
-  });
-
-  describe('One value twice, value provided', () => {
-    const getCase = <Prefix extends string, Postfix extends string>(
-      templateSyntax: TemplateSyntax<Prefix, Postfix>
-    ) => ({
-      template: [
-        `${templateSyntax.prefix}${firstValue.name}${templateSyntax.postfix} ${templateSyntax.prefix}${firstValue.name}${templateSyntax.postfix}` as const,
-        `${templateSyntax.prefix}  ${firstValue.name}  ${templateSyntax.postfix} ${templateSyntax.prefix}  ${firstValue.name}  ${templateSyntax.postfix}` as const,
-      ],
-      values: [
-        { [firstValue.name]: firstValue.value[0] },
-        { [firstValue.name]: firstValue.value[1] },
-      ],
-      result: [
-        `${firstValue.value[0]} ${firstValue.value[0]}` as const,
-        `${firstValue.value[1]} ${firstValue.value[1]}` as const,
-      ],
+      assert.equal(expected, actual);
     });
 
-    const getActual = <Prefix extends string, Postfix extends string>(
-      caseData: ReturnType<typeof getCase<Prefix, Postfix>>,
-      templateSyntax: TemplateSyntax<Prefix, Postfix>
-    ) => {
-      return caseData.template.map((template) =>
-        caseData.values.map((values) =>
-          valuesTransformer(
-            template,
-            values,
-            templateSyntax.prefix,
-            templateSyntax.postfix
-          )
-        )
-      );
-    };
+    it('emptyString', () => {
+      const template = stringWithoutTemplate;
+      const values = {} as const;
 
-    it('Double Mustache', () => {
-      const doubleMustacheCase = getCase(doubleMustache);
+      const expected: DoubleMustacheInterpolateValues<
+        typeof template,
+        typeof values
+      > = template;
 
-      const actual = getActual(doubleMustacheCase, doubleMustache);
+      const actual = transformDoubleMustacheValues(template, values);
 
-      const expected: InterpolateValues<
-        (typeof doubleMustacheCase.template)[number],
-        (typeof doubleMustache)['prefix'],
-        (typeof doubleMustache)['postfix'],
-        (typeof doubleMustacheCase.values)[number]
-      >[] = doubleMustacheCase.result;
-
-      assert.deepEqual(actual, [expected, expected]);
+      assert.equal(expected, actual);
     });
 
-    it('Template String', () => {
-      const templateStringCase = getCase(templateString);
+    it('noPostfix', () => {
+      const template = `${doubleMustache.prefix}${firstValue.name}` as const;
+      const values = firstValueParams;
 
-      const actual = getActual(templateStringCase, templateString);
+      const expected: DoubleMustacheInterpolateValues<
+        typeof template,
+        typeof values
+      > = template;
 
-      const expected: InterpolateValues<
-        (typeof templateStringCase.template)[number],
-        (typeof templateString)['prefix'],
-        (typeof templateString)['postfix'],
-        (typeof templateStringCase.values)[number]
-      >[] = templateStringCase.result;
+      const actual = transformDoubleMustacheValues(template, values);
 
-      assert.deepEqual(actual, [expected, expected]);
+      assert.equal(expected, actual);
+    });
+
+    it('noName', () => {
+      const template =
+        `${doubleMustache.prefix} ${doubleMustache.postfix}` as const;
+      const values = firstValueParams;
+
+      const expected: DoubleMustacheInterpolateValues<
+        typeof template,
+        typeof values
+      > = template;
+
+      const actual = transformDoubleMustacheValues(template, values);
+
+      assert.equal(expected, actual);
     });
   });
 
-  describe('No values or wrong template, value provided', () => {
-    const getCase = <Prefix extends string, Postfix extends string>(
-      templateSyntax: TemplateSyntax<Prefix, Postfix>
-    ) => ({
-      template: [
-        `${templateSyntax.prefix} ${someText} ${templateSyntax.postfix}` as const,
-        `${templateSyntax.prefix} ${templateSyntax.postfix}` as const,
-        `${templateSyntax.prefix} ${firstValue.name}` as const,
-        `${firstValue.name} ${templateSyntax.postfix}` as const,
-        someText,
-      ],
-      values: { [firstValue.name]: firstValue.value[0] },
+  describe('Template String', () => {
+    it('withoutSpaces', () => {
+      const template = getTemplateStringTemplate(firstValue);
+      const values = firstValueParams;
+
+      const expected: TemplateStringInterpolateValues<
+        typeof template,
+        typeof values
+      > = firstValue.value;
+
+      const actual = transformTemplateStringValues(template, values);
+
+      assert.equal(expected, actual);
     });
 
-    const getActual = <Prefix extends string, Postfix extends string>(
-      caseData: ReturnType<typeof getCase<Prefix, Postfix>>,
-      templateSyntax: TemplateSyntax<Prefix, Postfix>
-    ) => {
-      return caseData.template.map((template) =>
-        valuesTransformer(
-          template,
-          caseData.values,
-          templateSyntax.prefix,
-          templateSyntax.postfix
-        )
-      );
-    };
+    it('withoutValue', () => {
+      const template = getTemplateStringTemplate(firstValue);
+      const values = {} as const;
 
-    it('Double Mustache', () => {
-      const doubleMustacheCase = getCase(doubleMustache);
+      const expected: TemplateStringInterpolateValues<
+        typeof template,
+        typeof values
+      > = template;
 
-      const actual = getActual(doubleMustacheCase, doubleMustache);
+      const actual = transformTemplateStringValues(template, values);
 
-      const expected: InterpolateValues<
-        (typeof doubleMustacheCase.template)[number],
-        (typeof doubleMustache)['prefix'],
-        (typeof doubleMustache)['postfix'],
-        typeof doubleMustacheCase.values
-      >[] = doubleMustacheCase.template;
-
-      assert.deepEqual(actual, expected);
+      assert.equal(expected, actual);
     });
 
-    it('Template String', () => {
-      const templateStringCase = getCase(templateString);
+    it('withSpaces', () => {
+      const template = getTemplateStringSpacedTemplate(firstValue);
+      const values = firstValueParams;
 
-      const actual = getActual(templateStringCase, templateString);
+      const expected: TemplateStringInterpolateValues<
+        typeof template,
+        typeof values
+      > = firstValue.value;
 
-      const expected: InterpolateValues<
-        (typeof templateStringCase.template)[number],
-        (typeof templateString)['prefix'],
-        (typeof templateString)['postfix'],
-        typeof templateStringCase.values
-      >[] = templateStringCase.template;
+      const actual = transformTemplateStringValues(template, values);
 
-      assert.deepEqual(actual, expected);
+      assert.equal(expected, actual);
+    });
+
+    it('twoInRow', () => {
+      const template =
+        `${getTemplateStringTemplate(firstValue)}${getTemplateStringTemplate(secondValue)}` as const;
+      const values = firstAndSecondValues;
+
+      const expected: TemplateStringInterpolateValues<
+        typeof template,
+        typeof values
+      > = `${firstValue.value}${secondValue.value}`;
+
+      const actual = transformTemplateStringValues(template, values);
+
+      assert.equal(expected, actual);
+    });
+
+    it('withAnd', () => {
+      const template =
+        `${getTemplateStringTemplate(firstValue)} and ${getTemplateStringTemplate(secondValue)}` as const;
+      const values = firstAndSecondValues;
+
+      const expected: TemplateStringInterpolateValues<
+        typeof template,
+        typeof values
+      > = `${firstValue.value} and ${secondValue.value}`;
+
+      const actual = transformTemplateStringValues(template, values);
+
+      assert.equal(expected, actual);
+    });
+
+    it('numberValue', () => {
+      const template = getTemplateStringTemplate(countValue);
+      const values = countValueParams;
+
+      const expected: TemplateStringInterpolateValues<
+        typeof template,
+        typeof values
+      > = '42';
+
+      const actual = transformTemplateStringValues(template, values);
+
+      assert.equal(expected, actual);
+    });
+
+    it('sameInRow', () => {
+      const template =
+        `${getTemplateStringTemplate(firstValue)} ${getTemplateStringTemplate(firstValue)}` as const;
+      const values = firstValueParams;
+
+      const expected: TemplateStringInterpolateValues<
+        typeof template,
+        typeof values
+      > = `${firstValue.value} ${firstValue.value}`;
+
+      const actual = transformTemplateStringValues(template, values);
+
+      assert.equal(expected, actual);
+    });
+
+    it('emptyString', () => {
+      const template = stringWithoutTemplate;
+      const values = {} as const;
+
+      const expected: TemplateStringInterpolateValues<
+        typeof template,
+        typeof values
+      > = template;
+
+      const actual = transformTemplateStringValues(template, values);
+
+      assert.equal(expected, actual);
+    });
+
+    it('noPostfix', () => {
+      const template = `${templateString.prefix}${firstValue.name}` as const;
+      const values = firstValueParams;
+
+      const expected: TemplateStringInterpolateValues<
+        typeof template,
+        typeof values
+      > = template;
+
+      const actual = transformTemplateStringValues(template, values);
+
+      assert.equal(expected, actual);
+    });
+
+    it('noName', () => {
+      const template =
+        `${templateString.prefix} ${templateString.postfix}` as const;
+      const values = firstValueParams;
+
+      const expected: TemplateStringInterpolateValues<
+        typeof template,
+        typeof values
+      > = template;
+
+      const actual = transformTemplateStringValues(template, values);
+
+      assert.equal(expected, actual);
     });
   });
 });

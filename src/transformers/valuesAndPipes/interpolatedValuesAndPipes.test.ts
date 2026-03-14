@@ -6,26 +6,26 @@ import type {
   Value,
 } from './interpolatedValuesAndPipes.ts';
 
-type FirstValue = { name: 'first'; value: 'first value' };
-type SecondValue = { name: 'second'; value: 'second value' };
+export type FirstValue = { name: 'first'; value: 'first value' };
+export type SecondValue = { name: 'second'; value: 'second value' };
 
-type DoubleMustache = {
+export type DoubleMustache = {
   prefix: '{{';
   postfix: '}}';
   pipesDelim: '|';
 };
-type TemplateString = {
+export type TemplateString = {
   prefix: '${';
   postfix: '}';
   pipesDelim: '|>';
 };
 
-type StringWithoutTemplate = 'Empty string';
+export type StringWithoutTemplate = 'Empty string';
 
-type FirstPipeName = 'firstPipe';
-type SecondPipeName = 'secondPipe';
+export type FirstPipeName = 'firstPipe';
+export type SecondPipeName = 'secondPipe';
 
-type SomeText = 'Some text';
+export type SomeText = 'Some text';
 
 type AnyInterpolatedValesAndPipesCases = Record<
   string,
@@ -35,7 +35,7 @@ type AnyInterpolatedValesAndPipesCases = Record<
 type InterpolatedValuesAndPipesNamesCases<
   Prefix extends string,
   Postfix extends string,
-  PipesDelim extends string
+  PipesDelim extends string,
 > = {
   simpleValue: {
     template: `${Prefix}${FirstValue['name']}${Postfix}`;
@@ -127,12 +127,9 @@ type InterpolatedValuesNamesCheck<
   Prefix extends string,
   Postfix extends string,
   PipesDelim extends string,
-  Cases extends AnyInterpolatedValesAndPipesCases = InterpolatedValuesAndPipesNamesCases<
-    Prefix,
-    Postfix,
-    PipesDelim
-  >,
-  CaseName = keyof Cases
+  Cases extends AnyInterpolatedValesAndPipesCases =
+    InterpolatedValuesAndPipesNamesCases<Prefix, Postfix, PipesDelim>,
+  CaseName = keyof Cases,
 > = CaseName extends keyof Cases
   ? Equal<
       InterpolatedValuesNames<
@@ -149,12 +146,9 @@ type InterpolatedPipesNamesCheck<
   Prefix extends string,
   Postfix extends string,
   PipesDelim extends string,
-  Cases extends AnyInterpolatedValesAndPipesCases = InterpolatedValuesAndPipesNamesCases<
-    Prefix,
-    Postfix,
-    PipesDelim
-  >,
-  CaseName = keyof Cases
+  Cases extends AnyInterpolatedValesAndPipesCases =
+    InterpolatedValuesAndPipesNamesCases<Prefix, Postfix, PipesDelim>,
+  CaseName = keyof Cases,
 > = CaseName extends keyof Cases
   ? Equal<
       InterpolatedPipesNames<
@@ -189,11 +183,11 @@ type InterpolatedValesAndPipesTests = TrueCases<
       TemplateString['prefix'],
       TemplateString['postfix'],
       TemplateString['pipesDelim']
-    >
+    >,
   ]
 >;
 
-type AnyValuesAndPipesInterpolationCase = Record<
+export type AnyValuesAndPipesInterpolationCase = Record<
   string,
   {
     template: string;
@@ -203,18 +197,24 @@ type AnyValuesAndPipesInterpolationCase = Record<
   }
 >;
 
-type ValuesAndPipesInterpolationCases<
+export type ValuesAndPipesInterpolationCases<
   Prefix extends string,
   Postfix extends string,
   PipesDelim extends string,
-  FirstValueTemplate extends string = `${Prefix}${FirstValue['name']}${Postfix}`,
-  SecondValueTemplate extends string = `${Prefix}${SecondValue['name']}${Postfix}`,
-  FirstValueWithFirstPipeTemplate extends string = `${Prefix}${FirstValue['name']}${PipesDelim}${FirstPipeName}${Postfix}`,
-  FirstValueWithSecondPipeTemplate extends string = `${Prefix}${FirstValue['name']}${PipesDelim}${SecondPipeName}${Postfix}`,
-  FirstValueWithTwoPipesTemplate extends string = `${Prefix}${FirstValue['name']}${PipesDelim}${FirstPipeName}${PipesDelim}${SecondPipeName}${Postfix}`,
-  ValueWithSpacesTemplate extends string = `${Prefix}   ${FirstValue['name']}   ${Postfix}`,
+  FirstValueTemplate extends string =
+    `${Prefix}${FirstValue['name']}${Postfix}`,
+  SecondValueTemplate extends string =
+    `${Prefix}${SecondValue['name']}${Postfix}`,
+  FirstValueWithFirstPipeTemplate extends string =
+    `${Prefix}${FirstValue['name']}${PipesDelim}${FirstPipeName}${Postfix}`,
+  FirstValueWithSecondPipeTemplate extends string =
+    `${Prefix}${FirstValue['name']}${PipesDelim}${SecondPipeName}${Postfix}`,
+  FirstValueWithTwoPipesTemplate extends string =
+    `${Prefix}${FirstValue['name']}${PipesDelim}${FirstPipeName}${PipesDelim}${SecondPipeName}${Postfix}`,
+  ValueWithSpacesTemplate extends string =
+    `${Prefix}   ${FirstValue['name']}   ${Postfix}`,
   NoPrefixTemplate extends string = `${Prefix}${FirstValue['name']}`,
-  NoNameTemplate extends string = `${Prefix} ${Postfix}`
+  NoNameTemplate extends string = `${Prefix} ${Postfix}`,
 > = {
   valueWithoutSpaces: {
     template: FirstValueTemplate;
@@ -339,12 +339,9 @@ type ValuesAndPipesInterpolationCheck<
   Prefix extends string,
   Postfix extends string,
   PipesDelim extends string,
-  Cases extends AnyValuesAndPipesInterpolationCase = ValuesAndPipesInterpolationCases<
-    Prefix,
-    Postfix,
-    PipesDelim
-  >,
-  CaseName = keyof Cases
+  Cases extends AnyValuesAndPipesInterpolationCase =
+    ValuesAndPipesInterpolationCases<Prefix, Postfix, PipesDelim>,
+  CaseName = keyof Cases,
 > = CaseName extends keyof Cases
   ? [Cases[CaseName]['values']] extends [Record<string, any>]
     ? Equal<
@@ -372,6 +369,6 @@ type ValuesAndPipesInterpolationTests = TrueCases<
       TemplateString['prefix'],
       TemplateString['postfix'],
       TemplateString['pipesDelim']
-    >
+    >,
   ]
 >;

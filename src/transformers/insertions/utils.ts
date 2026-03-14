@@ -11,5 +11,5 @@ export const getInsertionRegExp = ({
 }: GetInsertionRegExpParams): RegExp => {
   [prefix, postfix] = [prefix, postfix].map(escapeRegExp);
 
-  return new RegExp(`${prefix}\\s(.+)\\s${postfix}`);
+  return new RegExp(`${prefix}\\s*(.+?)\\s*${postfix}`, 'g');
 };
