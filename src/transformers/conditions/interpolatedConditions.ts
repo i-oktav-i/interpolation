@@ -16,7 +16,7 @@ type IsTemplateCorrect<
   BeforeDelim extends string,
   BeforeFalse extends string,
   BeforePostfix extends string,
-  NameLimitation extends string = string
+  NameLimitation extends string = string,
 > =
   | IsCorrectName<Name>
   | (Name extends NameLimitation ? true : false)
@@ -44,7 +44,7 @@ type GetRawTemplateParts<
   Prefix extends string,
   Postfix extends string,
   Delim extends string,
-  Quot extends string
+  Quot extends string,
 > = ResourceString extends `${infer Start}${Prefix}${infer Name}${Quot}${infer IfTrue}${Quot}${infer BeforeDelim}${Delim}${infer BeforeFalse}${Quot}${infer IfFalse}${Quot}${infer BeforePostfix}${Postfix}${infer Rest}`
   ? {
       name: Name;
@@ -97,22 +97,22 @@ type ParseResourceString<
     : false,
   ConditionalValues = Negate extends true
     ? { ifTrue: RawData['ifFalse']; ifFalse: RawData['ifTrue'] }
-    : { ifTrue: RawData['ifTrue']; ifFalse: RawData['ifFalse'] }
+    : { ifTrue: RawData['ifTrue']; ifFalse: RawData['ifFalse'] },
 > = [RawData] extends [never]
   ? never
   : TemplateCorrectness extends true
-  ? {
-      name: Name;
-      start: RawData['start'];
-      rest: RawData['rest'];
-    } & ConditionalValues
-  : {
-      name: never;
-      ifTrue: never;
-      ifFalse: never;
-      start: RawData['start'];
-      rest: `${RawData['name']}${Quot}${RawData['ifTrue']}${Quot}${RawData['beforeDelim']}${Delim}${RawData['beforeFalse']}${Quot}${RawData['ifFalse']}${Quot}${RawData['beforePostfix']}${Postfix}${RawData['rest']}`;
-    };
+    ? {
+        name: Name;
+        start: RawData['start'];
+        rest: RawData['rest'];
+      } & ConditionalValues
+    : {
+        name: never;
+        ifTrue: never;
+        ifFalse: never;
+        start: RawData['start'];
+        rest: `${RawData['name']}${Quot}${RawData['ifTrue']}${Quot}${RawData['beforeDelim']}${Delim}${RawData['beforeFalse']}${Quot}${RawData['ifFalse']}${Quot}${RawData['beforePostfix']}${Postfix}${RawData['rest']}`;
+      };
 
 export type InterpolatedConditionsNames<
   ResourceString extends string,
@@ -122,7 +122,7 @@ export type InterpolatedConditionsNames<
   Quot extends string = '"',
   ConditionsNames extends string = never,
   ParsedData extends AnyParsedData = AnyParsedData &
-    ParseResourceString<ResourceString, Prefix, Postfix, Delim, Quot>
+    ParseResourceString<ResourceString, Prefix, Postfix, Delim, Quot>,
 > = [ParsedData['name']] extends [never]
   ? [ParsedData['rest']] extends [never]
     ? ConditionsNames
@@ -160,9 +160,8 @@ export type InterpolateConditions<
       Quot,
       keyof Conditions & string
     >,
-  RawStart extends string = ResourceString extends `${infer Start}${ParsedData['rest']}`
-    ? Start
-    : '',
+  RawStart extends string =
+    ResourceString extends `${infer Start}${ParsedData['rest']}` ? Start : '',
   ConditionValue = Conditions[ParsedData['name']],
   FalsyIntersection = ConditionValue & FalsyType,
   FalsyInterpolatingValue extends string = [FalsyIntersection] extends [never]
@@ -170,7 +169,7 @@ export type InterpolateConditions<
     : ParsedData['ifFalse'],
   TruthyInterpolatingValue extends string = ConditionValue extends FalsyType
     ? never
-    : ParsedData['ifTrue']
+    : ParsedData['ifTrue'],
 > = [ParsedData['name']] extends [never]
   ? [ParsedData['rest']] extends [never]
     ? `${ResultStart}${ResourceString}`

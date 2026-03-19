@@ -16,7 +16,7 @@ type TupleOfTest = TrueCases<
     Equal<
       TupleOf<number | string, 3>,
       [number | string, number | string, number | string]
-    >
+    >,
   ]
 >;
 
@@ -27,7 +27,7 @@ type TupleToStringTest = TrueCases<
     Equal<Join<[-123, -456]>, '-123-456'>,
     Equal<Join<[1, '2', 3], ' '>, '1 2 3'>,
     Equal<Join<string[], ' '>, string>,
-    Equal<Join<(string | number)[], ' '>, string>
+    Equal<Join<(string | number)[], ' '>, string>,
   ]
 >;
 
@@ -40,7 +40,7 @@ type TrimTest = TrueCases<
     Equal<Trim<TestString>, TestString>,
     Equal<Trim<`${Spaces}${TestString}`>, TestString>,
     Equal<Trim<`${TestString}${Spaces}`>, TestString>,
-    Equal<Trim<`${Spaces}${TestString}${Spaces}`>, TestString>
+    Equal<Trim<`${Spaces}${TestString}${Spaces}`>, TestString>,
   ]
 >;
 
@@ -52,7 +52,7 @@ type RangeTest = TrueCases<
     Equal<Range<3>, 0 | 1 | 2>,
     Equal<Range<0, 3>, 0 | 1 | 2>,
     Equal<Range<1, 3>, 1 | 2>,
-    Equal<Range<2, 2>, never>
+    Equal<Range<2, 2>, never>,
   ]
 >;
 
@@ -74,7 +74,7 @@ type UnionToIntersectionTest = TrueCases<
       true & false & null & undefined
     >,
     Equal<UnionToIntersection<{ a: 1 }>, { a: 1 }>,
-    Equal<UnionToIntersection<X | Y | Z>, X & Y & Z>
+    Equal<UnionToIntersection<X | Y | Z>, X & Y & Z>,
   ]
 >;
 
@@ -86,6 +86,6 @@ type OneOfUnionTest = TrueCases<
     Equal<OneOfUnion<false>, false>,
     Equal<OneOfUnion<X>, X>,
     ExpectFalse<IsUnion<OneOfUnion<X | Y | Z>>>,
-    Equal<OneOfUnion<X | Y | Z>, Z>
+    Equal<OneOfUnion<X | Y | Z>, Z>,
   ]
 >;

@@ -1,5 +1,5 @@
 export type GetConfigOptionValue<
-  ParamKey extends keyof InterpolationTemplatesDefaultOptions
+  ParamKey extends keyof InterpolationTemplatesDefaultOptions,
 > = ParamKey extends infer Key extends keyof InterpolationTemplatesOptions
   ? InterpolationTemplatesOptions[Key]
   : InterpolationTemplatesDefaultOptions[ParamKey];
@@ -14,12 +14,12 @@ export type ValidateOptionParameter<
   IsProvidedStringPrimitive = string extends ProvidedValue ? true : false,
   IsProvidedDefaultValue = [
     InterpolationTemplatesDefaultOptions[Key],
-    ProvidedValue
+    ProvidedValue,
   ] extends [ProvidedValue, InterpolationTemplatesDefaultOptions[Key]]
     ? true
-    : false
+    : false,
 > = true extends IsProvidedEmptyString | IsProvidedStringPrimitive
   ? { [x in Key]: GetConfigOptionValue<Key> }
   : IsProvidedDefaultValue extends true
-  ? { [x in Key]?: ProvidedValue }
-  : { [x in Key]: ProvidedValue };
+    ? { [x in Key]?: ProvidedValue }
+    : { [x in Key]: ProvidedValue };
