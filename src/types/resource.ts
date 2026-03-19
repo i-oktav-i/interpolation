@@ -1,6 +1,6 @@
 export type AnyResourceOrString = AnyResource | string;
-export type AnyObjectResource = { [key: string]: AnyResourceOrString };
-export type AnyArrayResource = AnyResourceOrString[];
+export type AnyObjectResource = { readonly [key: string]: AnyResourceOrString };
+export type AnyArrayResource = readonly AnyResourceOrString[];
 
 export type AnyResource = AnyObjectResource | AnyArrayResource;
 
