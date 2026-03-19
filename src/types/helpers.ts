@@ -12,11 +12,11 @@ export type UnionToIntersection<
     ? (k: Union) => void
     : never,
   IntersectionOfUnionItems = [UnionAsFunctionsArguments] extends [
-    (k: infer I) => void
+    (k: infer I) => void,
   ]
     ? I
     : never,
-  Result = [Union] extends [never] ? never : IntersectionOfUnionItems
+  Result = [Union] extends [never] ? never : IntersectionOfUnionItems,
 > = Result;
 
 export type OneOfUnion<
@@ -25,7 +25,7 @@ export type OneOfUnion<
   FunctionsIntersection = UnionToIntersection<UnionAsFunctionsReturnType>,
   UnionElement = FunctionsIntersection extends (() => infer R extends Union)
     ? R
-    : never
+    : never,
 > = UnionElement;
 
 type AnyKey = string | number | symbol;
@@ -65,12 +65,12 @@ export type Join<
     : never,
   Rest extends TextValue[] = TTuple extends [First, ...infer Rest]
     ? Rest
-    : never
+    : never,
 > = number extends TTuple['length']
   ? string
   : [First] extends [never]
-  ? Result
-  : Join<Rest, Delim, `${Result}${CurrentDelim}${First}`>;
+    ? Result
+    : Join<Rest, Delim, `${Result}${CurrentDelim}${First}`>;
 
 export type Prettify<T> = T extends object
   ? { [K in keyof T]: Prettify<T[K]> }
@@ -79,19 +79,19 @@ export type Prettify<T> = T extends object
 export type TupleOf<
   T,
   Length extends number,
-  Buff extends T[] = []
+  Buff extends T[] = [],
 > = Buff['length'] extends Length ? Buff : TupleOf<T, Length, [T, ...Buff]>;
 
 type Enumerate<
   T extends number,
-  Buff extends number[] = []
+  Buff extends number[] = [],
 > = Buff['length'] extends T
   ? Buff[number]
   : Enumerate<T, [...Buff, Buff['length']]>;
 
 export type Range<
   RangeStartOfEnd extends number,
-  RangeEnd extends number = never
+  RangeEnd extends number = never,
 > = [RangeEnd] extends [never]
   ? Enumerate<RangeStartOfEnd>
   : Exclude<Enumerate<RangeEnd>, Enumerate<RangeStartOfEnd>>;
@@ -105,7 +105,7 @@ export type CheckName<Name extends string> = Name extends
 export type Split<
   T extends string,
   Delim extends string,
-  Result extends string = never
+  Result extends string = never,
 > = T extends `${infer First}${Delim}${infer Rest}`
   ? Split<Rest, Delim, Result | First>
   : Result | T;

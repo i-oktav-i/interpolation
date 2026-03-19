@@ -12,7 +12,7 @@ type AddPrefix<Value extends string, Prefix extends string> = Prefix extends ''
 
 type _FlattenResource<
   Resource extends AnyResource,
-  Path extends string
+  Path extends string,
 > = UnionToIntersection<
   Exclude<keyof Resource, keyof []> extends infer Keys extends keyof Resource &
     string
@@ -21,19 +21,20 @@ type _FlattenResource<
         ? Resource[Keys] extends string
           ? { [x in NextPath]: Resource[Keys] }
           : Resource[Keys] extends AnyResource
-          ? _FlattenResource<Resource[Keys], NextPath>
-          : never
+            ? _FlattenResource<Resource[Keys], NextPath>
+            : never
         : never
       : never
     : never
 >;
 
-export type FlattenResource<Resource extends AnyResource> = _FlattenResource<
-  Resource,
-  ''
-> extends infer Reduced extends Record<string, string>
-  ? Reduced
-  : never;
+export type FlattenResource<Resource extends AnyResource> =
+  _FlattenResource<Resource, ''> extends infer Reduced extends Record<
+    string,
+    string
+  >
+    ? Reduced
+    : never;
 
 /**
  * Проверяет элементы массива на допустимые значения локали.
@@ -56,7 +57,7 @@ export type FlattenResource<Resource extends AnyResource> = _FlattenResource<
  */
 type ValidateArrayValues<
   ArrayResource extends AnyArrayResource,
-  AllowString extends boolean
+  AllowString extends boolean,
 > = {
   [Key in keyof ArrayResource]: _ValidateResource<
     ArrayResource[Key],
@@ -90,7 +91,7 @@ type ValidateArrayValues<
  */
 type ValidateArray<
   ArrayResource extends AnyArrayResource,
-  AllowString extends boolean
+  AllowString extends boolean,
 > = number extends ArrayResource['length']
   ? never
   : ValidateArrayValues<ArrayResource, AllowString>;
@@ -114,7 +115,7 @@ type ValidateArray<
  */
 type ValidateObject<
   ObjectResource extends AnyObjectResource,
-  AllowString extends boolean
+  AllowString extends boolean,
 > = {
   [Key in keyof ObjectResource]: _ValidateResource<
     ObjectResource[Key],
@@ -158,18 +159,18 @@ type ValidateObject<
  */
 type _ValidateResource<
   Resource extends AnyResourceOrString,
-  AllowString extends boolean = false
+  AllowString extends boolean = false,
 > = Resource extends string
   ? [string, AllowString] extends [Resource, false]
     ? never
     : Resource
   : Resource extends AnyArrayResource
-  ? ValidateArray<Resource, AllowString>
-  : Resource extends AnyObjectResource
-  ? ValidateObject<Resource, AllowString>
-  : never;
+    ? ValidateArray<Resource, AllowString>
+    : Resource extends AnyObjectResource
+      ? ValidateObject<Resource, AllowString>
+      : never;
 
 export type ValidateResource<
   Resource extends AnyResource,
-  AllowString extends boolean = false
+  AllowString extends boolean = false,
 > = _ValidateResource<Resource, AllowString>;

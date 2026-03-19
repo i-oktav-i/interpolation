@@ -16,7 +16,7 @@ export const getConditionsRegExp = ({
   quot,
 }: GetConditionsRegParams) => {
   [prefix, postfix, delim, quot] = [prefix, postfix, delim, quot].map(
-    escapeRegExp
+    escapeRegExp,
   );
 
   const conditionsGroup = `(${Object.keys(conditions).join('|')})`;
@@ -25,6 +25,6 @@ export const getConditionsRegExp = ({
 
   return new RegExp(
     `${prefix}\\s*(!|)${conditionsGroup}\\s*${conditionsBranch}\\s*${delim}\\s*${conditionsBranch}\\s*${postfix}`,
-    'g'
+    'g',
   );
 };

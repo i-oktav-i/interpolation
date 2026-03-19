@@ -10,7 +10,7 @@ export type InterpolatedValuesNames<
   ResourceString extends string,
   Prefix extends string,
   Postfix extends string,
-  Names extends string = never
+  Names extends string = never,
 > = ResourceString extends `${string}${Prefix}${infer RawName}${Postfix}${infer Rest}`
   ? Trim<RawName> extends infer Name extends string
     ? Name extends `${string}${ForbiddenCharsInNamesOption}${string}` | ''
@@ -27,7 +27,7 @@ export type InterpolatedValuesNames<
 export type ReducedResourceToValueNames<
   ReducedResource extends Record<string, string>,
   Prefix extends string,
-  Postfix extends string
+  Postfix extends string,
 > = {
   [Key in keyof ReducedResource]: InterpolatedValuesNames<
     ReducedResource[Key],
@@ -41,7 +41,7 @@ export type InterpolateValues<
   Prefix extends string,
   Postfix extends string,
   Values extends Record<string, Value>,
-  ResultStart extends string = ''
+  ResultStart extends string = '',
 > = ResourceString extends `${infer Start}${Prefix}${infer RawName}${Postfix}${infer Rest}`
   ? Trim<RawName> extends infer Name extends keyof Values
     ? InterpolateValues<

@@ -45,7 +45,7 @@ export const create = <
     PipesDelim
   > extends infer U extends string
     ? U
-    : never
+    : never,
 >({
   resource,
   valuesPrefix = '{{' as ValuesPrefix,
@@ -76,7 +76,8 @@ export const create = <
   const interpolate = <
     Key extends (keyof typeof flatResource & string) | (string & {}),
     const ParamsParam extends TConditionsTransformerParams &
-      TValuesAndPipesTransformerParams extends infer ParamsParams extends AnyParams
+      TValuesAndPipesTransformerParams extends infer ParamsParams extends
+      AnyParams
       ? {} extends ParamsParams
         ? [params?: ParamsParams]
         : [params: ParamsParams]
@@ -89,26 +90,28 @@ export const create = <
       InsertionsPostfix,
       typeof flatResource
     >,
-    ConditionsTransformerResult extends InsertionsTransformerResult extends infer U extends string
-      ? InterpolateConditions<
-          U,
-          ConditionsPrefix,
-          ConditionsPostfix,
-          ConditionsDelim,
-          ConditionsQuot,
-          NonNullable<NonNullable<ParamsParam[0]>['values']>
-        >
-      : never,
-    ValuesAndPipesTransformerResult extends ConditionsTransformerResult extends infer U extends string
-      ? InterpolateValuesAndPipes<
-          U,
-          ValuesPrefix,
-          ValuesPostfix,
-          PipesDelim,
-          NonNullable<NonNullable<ParamsParam[0]>['values']>,
-          PipeName
-        >
-      : never,
+    ConditionsTransformerResult extends
+      InsertionsTransformerResult extends infer U extends string
+        ? InterpolateConditions<
+            U,
+            ConditionsPrefix,
+            ConditionsPostfix,
+            ConditionsDelim,
+            ConditionsQuot,
+            NonNullable<NonNullable<ParamsParam[0]>['values']>
+          >
+        : never,
+    ValuesAndPipesTransformerResult extends
+      ConditionsTransformerResult extends infer U extends string
+        ? InterpolateValuesAndPipes<
+            U,
+            ValuesPrefix,
+            ValuesPostfix,
+            PipesDelim,
+            NonNullable<NonNullable<ParamsParam[0]>['values']>,
+            PipeName
+          >
+        : never,
     TConditionsTransformerParams extends ConditionsTransformerParams<
       InsertionsTransformerResult,
       ConditionsPrefix,
@@ -121,7 +124,7 @@ export const create = <
       ValuesPrefix,
       ValuesPostfix,
       PipesDelim
-    >
+    >,
   >(
     key: Key,
     ...[params]: ParamsParam
@@ -136,7 +139,7 @@ export const create = <
       extractedResource,
       flatResource,
       insertionsPrefix,
-      insertionsPostfix
+      insertionsPostfix,
     );
 
     if (!params?.values) return interpolatedInsertions as any;
@@ -147,7 +150,7 @@ export const create = <
       conditionsPrefix,
       conditionsPostfix,
       conditionsDelim,
-      conditionsQuot
+      conditionsQuot,
     );
 
     const interpolatedValues = valuesAndPipesTransformer(
@@ -156,7 +159,7 @@ export const create = <
       pipes,
       valuesPrefix,
       valuesPostfix,
-      pipesDelim
+      pipesDelim,
     );
 
     return interpolatedValues as any;

@@ -43,7 +43,7 @@ type InterpolatedConditionsNamesCheck<
   Postfix extends string,
   Delim extends string,
   Quot extends string,
-  Result extends string
+  Result extends string,
 > = Equal<
   Result,
   InterpolatedConditionsNames<ResourceString, Prefix, Postfix, Delim, Quot>
@@ -57,7 +57,7 @@ type InterpolatedConditionsNamesCases<
   Prefix extends string,
   Postfix extends string,
   Delim extends string,
-  Quot extends string
+  Quot extends string,
 > = {
   withoutSpacesWithoutNegation: {
     template: `${Prefix}${FirstCondition['name']}${Quot}${FirstCondition['ifTrue']}${Quot}${Delim}${Quot}${FirstCondition['ifFalse']}${Quot}${Postfix}`;
@@ -110,13 +110,9 @@ type InterpolatedConditionsNamesChecks<
   Postfix extends string,
   Delim extends string,
   Quot extends string,
-  Cases extends AnyInterpolatedConditionsNamesCases = InterpolatedConditionsNamesCases<
-    Prefix,
-    Postfix,
-    Delim,
-    Quot
-  >,
-  CaseName = keyof Cases
+  Cases extends AnyInterpolatedConditionsNamesCases =
+    InterpolatedConditionsNamesCases<Prefix, Postfix, Delim, Quot>,
+  CaseName = keyof Cases,
 > = CaseName extends keyof Cases
   ? InterpolatedConditionsNamesCheck<
       Cases[CaseName]['template'],
@@ -141,7 +137,7 @@ type InterpolatedConditionsNamesTests = TrueCases<
       BashStyle['postfix'],
       BashStyle['delim'],
       BashStyle['quot']
-    >
+    >,
   ]
 >;
 
@@ -156,7 +152,7 @@ type InterpolateConditionsCheck<
   Delim extends string,
   Quot extends string,
   Conditions extends Record<string, any>,
-  Result extends string
+  Result extends string,
 > = Equal<
   InterpolateConditions<
     ResourceString,
@@ -178,9 +174,12 @@ export type InterpolateConditionsCases<
   Postfix extends string,
   Delim extends string,
   Quot extends string,
-  CommonTemplate extends string = `${Prefix}${FirstCondition['name']}${Quot}${FirstCondition['ifTrue']}${Quot}${Delim}${Quot}${FirstCondition['ifFalse']}${Quot}${Postfix}`,
-  UnfinishedTemplate extends string = `${FirstCondition['name']}${Quot}${FirstCondition['ifTrue']}${Quot}${Delim}${Quot}${FirstCondition['ifFalse']}${Quot}${Postfix}`,
-  TemplateWithExtraCharsAndSpaces extends string = `${Prefix}    ${FirstCondition['name']}    ${Quot}${FirstCondition['ifTrue']}${Quot}${Delim}wrong${Quot}${FirstCondition['ifFalse']}${Quot}${Postfix}`
+  CommonTemplate extends string =
+    `${Prefix}${FirstCondition['name']}${Quot}${FirstCondition['ifTrue']}${Quot}${Delim}${Quot}${FirstCondition['ifFalse']}${Quot}${Postfix}`,
+  UnfinishedTemplate extends string =
+    `${FirstCondition['name']}${Quot}${FirstCondition['ifTrue']}${Quot}${Delim}${Quot}${FirstCondition['ifFalse']}${Quot}${Postfix}`,
+  TemplateWithExtraCharsAndSpaces extends string =
+    `${Prefix}    ${FirstCondition['name']}    ${Quot}${FirstCondition['ifTrue']}${Quot}${Delim}wrong${Quot}${FirstCondition['ifFalse']}${Quot}${Postfix}`,
 > = {
   withoutNegationWithTrueCondition: {
     template: CommonTemplate;
@@ -240,7 +239,7 @@ type InterpolateConditionsChecks<
     Delim,
     Quot
   >,
-  CaseName = keyof Cases
+  CaseName = keyof Cases,
 > = CaseName extends keyof Cases
   ? InterpolateConditionsCheck<
       Cases[CaseName]['template'],
@@ -266,7 +265,7 @@ type InterpolateConditionsTests = TrueCases<
       BashStyle['postfix'],
       BashStyle['delim'],
       BashStyle['quot']
-    >
+    >,
   ]
 >;
 // #endregion

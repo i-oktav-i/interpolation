@@ -18,7 +18,7 @@ export type InterpolatedValuesNames<
   PipesDelim extends string,
   Names extends string = never,
   ParsedData extends AnyParsedData = AnyParsedData &
-    ParseResourceString<ResourceString, Prefix, Postfix, PipesDelim>
+    ParseResourceString<ResourceString, Prefix, Postfix, PipesDelim>,
 > = [ParsedData['valueName']] extends [never]
   ? [ParsedData['rest']] extends [never]
     ? Names
@@ -42,7 +42,7 @@ export type GetAllPipesNames<
   Prefix extends string,
   Postfix extends string,
   PipesDelim extends string,
-  AllValues extends string = GetResourceAllValues<Resource>
+  AllValues extends string = GetResourceAllValues<Resource>,
 > = AllValues extends string
   ? InterpolatedPipesNames<AllValues, Prefix, Postfix, PipesDelim>
   : never;
@@ -64,7 +64,7 @@ export type InterpolatedPipesNames<
     Prefix,
     Postfix,
     PipesDelim
-  >
+  >,
 > = [ParsedData['pipeName']] extends [never]
   ? [ParsedData['rest']] extends [never]
     ? Names
@@ -99,7 +99,7 @@ export type InterpolateValuesAndPipes<
       PipesDelim,
       keyof Values & string,
       PipeName
-    >
+    >,
 > = [ParsedData['valueName']] extends [never]
   ? [ParsedData['rest']] extends [never]
     ? `${ResultStart}${ResourceString}`
@@ -120,7 +120,7 @@ export type InterpolateValuesAndPipes<
       Values,
       PipeName,
       `${ResultStart}${ParsedData['start']}${[ParsedData['pipeName']] extends [
-        never
+        never,
       ]
         ? Values[ParsedData['valueName']]
         : string}`
@@ -130,7 +130,7 @@ type CheckNames<
   ValueName extends string,
   PipeName extends string,
   ValueNameLimitation extends string,
-  PipeNameLimitation extends string
+  PipeNameLimitation extends string,
 > =
   | CheckName<ValueName>
   | (ValueName extends ValueNameLimitation ? true : false)
@@ -151,7 +151,7 @@ type GetRawTemplateParts<
   ResourceString extends string,
   Prefix extends string,
   Postfix extends string,
-  PipesDelim extends string
+  PipesDelim extends string,
 > = ResourceString extends `${infer Start}${Prefix}${infer Expression}${Postfix}${infer Rest}`
   ? Expression extends `${infer RawName}${PipesDelim}${infer PipesExpression}`
     ? {
@@ -197,19 +197,19 @@ type ParseResourceString<
     PipeName,
     ValueNameLimitation,
     PipeNameLimitation
-  >
+  >,
 > = [RawData] extends [never]
   ? never
   : IsTemplateCorrect extends true
-  ? {
-      valueName: ValueName;
-      pipeName: PipeName;
-      start: RawData['start'];
-      rest: RawData['rest'];
-    }
-  : {
-      valueName: never;
-      pipeName: never;
-      start: `${RawData['start']}${Prefix}`;
-      rest: `${RawData['expression']}${Postfix}${RawData['rest']}`;
-    };
+    ? {
+        valueName: ValueName;
+        pipeName: PipeName;
+        start: RawData['start'];
+        rest: RawData['rest'];
+      }
+    : {
+        valueName: never;
+        pipeName: never;
+        start: `${RawData['start']}${Prefix}`;
+        rest: `${RawData['expression']}${Postfix}${RawData['rest']}`;
+      };

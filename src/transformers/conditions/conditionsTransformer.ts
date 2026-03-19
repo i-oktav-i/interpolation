@@ -10,20 +10,21 @@ export type ConditionsTransformerParams<
   Prefix extends string,
   Postfix extends string,
   Delim extends string,
-  Quot extends string = '"'
-> = InterpolatedConditionsNames<
-  ResourceString,
-  Prefix,
-  Postfix,
-  Delim,
-  Quot
-> extends infer U extends string
-  ? [U] extends [never]
-    ? { values?: {} }
-    : {
-        values: Record<U, unknown>;
-      }
-  : never;
+  Quot extends string = '"',
+> =
+  InterpolatedConditionsNames<
+    ResourceString,
+    Prefix,
+    Postfix,
+    Delim,
+    Quot
+  > extends infer U extends string
+    ? [U] extends [never]
+      ? { values?: {} }
+      : {
+          values: Record<U, unknown>;
+        }
+    : never;
 
 export const conditionsTransformer = (
   resourceString: string,
@@ -31,7 +32,7 @@ export const conditionsTransformer = (
   prefix: string,
   postfix: string,
   delim: string,
-  quot: string = '"'
+  quot: string = '"',
 ) => {
   const conditionsRegExp = getConditionsRegExp({
     conditions: params,
@@ -57,14 +58,14 @@ export const typedConditionsTransformer = conditionsTransformer as <
   Prefix extends string,
   Postfix extends string,
   Delim extends string,
-  Quot extends string = '"'
+  Quot extends string = '"',
 >(
   resourceString: ResourceString,
   params: Params,
   prefix: Prefix,
   postfix: Postfix,
   delim: Delim,
-  quot: Quot
+  quot: Quot,
 ) => InterpolateConditions<
   ResourceString,
   Prefix,
