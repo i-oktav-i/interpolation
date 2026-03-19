@@ -9,7 +9,7 @@ const isEmptyString = (value: string): value is '' => value === '';
 
 const addPrefix = <Value extends string, Prefix extends string>(
   value: Value,
-  prefix: Prefix
+  prefix: Prefix,
 ): Prefix extends '' ? Value : `${Prefix}.${Value}` =>
   (isEmptyString(prefix) ? value : `${prefix}.${value}`) as any;
 
@@ -22,7 +22,7 @@ const arrayToObject = <T extends unknown[]>(array: T) =>
 
 const flattenResourceEntries = (
   resource: AnyResource,
-  prefix = ''
+  prefix = '',
 ): [string, string][] => {
   const objectResource: AnyObjectResource = Array.isArray(resource)
     ? arrayToObject(resource)
@@ -39,9 +39,9 @@ const flattenResourceEntries = (
   });
 };
 
-export const flattenResource = <Resource extends AnyResource>(
-  resource: Resource
+export const flattenResource = <const Resource extends AnyResource>(
+  resource: Resource,
 ) =>
   Object.fromEntries(
-    flattenResourceEntries(resource)
+    flattenResourceEntries(resource),
   ) as FlattenResource<Resource>;
